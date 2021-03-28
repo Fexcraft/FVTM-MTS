@@ -12,6 +12,7 @@ import net.fexcraft.mod.fvtm.data.container.ContainerHolder;
 import net.fexcraft.mod.fvtm.data.container.ContainerSlot;
 import net.fexcraft.mod.fvtm.util.Resources;
 import net.fexcraft.mod.fvtm.util.caps.ContainerHolderUtil;
+import net.fexcraft.mod.fvtm.util.caps.RenderCacheHandler;
 import net.minecraft.entity.Entity;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.Vec3d;
@@ -30,9 +31,13 @@ public class CompatEvents {
 	
 	@SubscribeEvent
 	public void onAttachEntityCapabilities(AttachCapabilitiesEvent<Entity> event){
+		if(event.getObject().world == null) return;
 		if(event.getObject() instanceof BuilderEntity){
 			tracked.add((BuilderEntity)event.getObject());
 			event.addCapability(new ResourceLocation("fvtm:container"), new ContainerHolderUtil(event.getObject()));
+			if(event.getObject().world.isRemote){
+				event.addCapability(new ResourceLocation("fvtm:rendercache"), new RenderCacheHandler());
+			}
 		}
 	}
 	
