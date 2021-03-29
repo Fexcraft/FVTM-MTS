@@ -5,7 +5,6 @@ import org.lwjgl.opengl.GL11;
 import minecrafttransportsimulator.baseclasses.Point3d;
 import minecrafttransportsimulator.mcinterface.BuilderEntity;
 import net.fexcraft.mod.fvtm.data.container.ContainerHolder;
-import net.fexcraft.mod.fvtm.data.container.ContainerSlot;
 import net.minecraft.client.Minecraft;
 import net.minecraft.entity.Entity;
 import net.minecraft.world.World;
@@ -35,14 +34,18 @@ public class RenderEvents {
         	BEWrapper wrapper = CompatEvents.wrappers.get(ent);
         	if(wrapper == null || (cap = wrapper.getCapability()) == null || cap.getContainerSlots().length == 0) continue;
         	//
-			Point3d entpos = ent.entity.prevPosition.getInterpolatedPoint(ent.entity.position, ticks);
+			//Point3d entpos = ent.entity.prevPosition.getInterpolatedPoint(ent.entity.position, ticks);
+	        x = ent.lastTickPosX + (ent.posX - ent.lastTickPosX) * ticks;
+	        y = ent.lastTickPosY + (ent.posY - ent.lastTickPosY) * ticks;
+	        z = ent.lastTickPosZ + (ent.posZ - ent.lastTickPosZ) * ticks;
 			Point3d entrot = ent.entity.prevAngles.getInterpolatedPoint(ent.entity.angles, ticks);
-        	for(ContainerSlot slot : cap.getContainerSlots()){
+			cap.render(x, y, z, entrot.y - 90, entrot.x, entrot.z);
+        	/*for(ContainerSlot slot : cap.getContainerSlots()){
         		GL11.glPushMatrix();
         		GL11.glTranslated(entpos.x, entpos.y, entpos.z);
         		slot.render(entity, entrot.y - 90, entrot.x, entrot.z);
         		GL11.glPopMatrix();
-        	}
+        	}*/
         }
 		GL11.glPopMatrix();
     }
