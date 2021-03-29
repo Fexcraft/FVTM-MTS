@@ -1,16 +1,14 @@
 package net.fexcraft.mod.fvtm.compat.mts;
 
-import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.concurrent.ConcurrentLinkedQueue;
 
 import minecrafttransportsimulator.entities.instances.EntityVehicleF_Physics;
 import minecrafttransportsimulator.jsondefs.JSONPartDefinition;
 import minecrafttransportsimulator.mcinterface.BuilderEntity;
 import net.fexcraft.lib.mc.utils.Print;
-import net.fexcraft.mod.fvtm.data.container.ContainerData;
 import net.fexcraft.mod.fvtm.data.container.ContainerHolder;
 import net.fexcraft.mod.fvtm.data.container.ContainerSlot;
-import net.fexcraft.mod.fvtm.util.Resources;
 import net.fexcraft.mod.fvtm.util.caps.ContainerHolderUtil;
 import net.fexcraft.mod.fvtm.util.caps.RenderCacheHandler;
 import net.minecraft.entity.Entity;
@@ -24,7 +22,7 @@ import net.minecraftforge.fml.common.gameevent.TickEvent.WorldTickEvent;
 public class CompatEvents {
 	
 	public static HashMap<BuilderEntity, BEWrapper> wrappers = new HashMap<>();
-	public static ArrayList<BuilderEntity> tracked = new ArrayList<>();
+	public static ConcurrentLinkedQueue<BuilderEntity> tracked = new ConcurrentLinkedQueue<>();
 	//we'll track them till we're sure
 	
 	public CompatEvents(){}
@@ -75,8 +73,8 @@ public class CompatEvents {
 		byte length = info.length > 2 ? Byte.parseByte(info[2]) : 6;
 		Vec3d pos = new Vec3d(part.pos.x, part.pos.y, part.pos.z);
 		float rot = info.length > 3 ? Integer.parseInt(info[3]) : 0;
-		ContainerSlot slot = new ContainerSlot("generic_mts_" + holder.getContainerSlots().length, length, pos, rot, null, null);
-		slot.setContainer(0, new ContainerData(Resources.CONTAINERS.getValue(new ResourceLocation("hcp:medium"))));
+		ContainerSlot slot = new ContainerSlot("generic_mts_" + holder.getContainerSlots().length, length, pos.add(.375, 0, -.375), rot, null, null);
+		//slot.setContainer(0, new ContainerData(Resources.CONTAINERS.getValue(new ResourceLocation("hcp:medium"))));
 		holder.addContainerSlot(slot);
 		Print.log("Included ContainerSlot(" + length + ") into " + entity);
 		holder.sync(entity.world.isRemote);
