@@ -89,6 +89,10 @@ public class CompatEvents {
 			wrapper.getEntity().world.spawnEntity(wrapper.getTracker());
 		}
 	}
+
+	public static BEWrapper getWrapper(BuilderEntity entity){
+		return wrappers.get(entity);
+	}
 	
 	@SubscribeEvent
 	public void onInteract(EntityInteractSpecific event){
