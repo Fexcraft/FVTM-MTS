@@ -31,11 +31,11 @@ public class RenderTracker extends Render<Tracker> implements IRenderFactory<Tra
 		if(slot != null){
 			Point3d point = new Point3d(slot.position.x, slot.position.y, slot.position.z);
 			point.rotateFine(tracker.entity.entity.angles);
-			point.add(tracker.entity.entity.position).add(.375, 0, .375);
+			point.add(tracker.entity.entity.position);//.add(.375, 0, .375);
 			GL11.glPushMatrix();
-			GL11.glTranslated(point.x, point.y + 3, point.z);
+			GL11.glTranslated(point.x, point.y, point.z);
 			GL11.glDisable(GL11.GL_TEXTURE_2D);
-			DebugModels.CENTERSPHERE.render(1);
+			DebugModels.CENTERSPHERE.render(.5f);
 			GL11.glEnable(GL11.GL_TEXTURE_2D);
 			GL11.glPopMatrix();
 		}*/
