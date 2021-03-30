@@ -27,7 +27,7 @@ public class RenderEvents {
     }
     
     public static void translate(float ticks){
-        if(camera == null) camera = Minecraft.getMinecraft().getRenderViewEntity();
+        camera = Minecraft.getMinecraft().getRenderViewEntity();
         x = camera.lastTickPosX + (camera.posX - camera.lastTickPosX) * ticks;
         y = camera.lastTickPosY + (camera.posY - camera.lastTickPosY) * ticks;
         z = camera.lastTickPosZ + (camera.posZ - camera.lastTickPosZ) * ticks;
