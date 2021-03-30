@@ -1,9 +1,11 @@
 package net.fexcraft.mod.fvtm.compat.mts;
 
+import minecrafttransportsimulator.baseclasses.Point3d;
 import minecrafttransportsimulator.mcinterface.BuilderEntity;
 import net.fexcraft.mod.fvtm.data.Capabilities;
 import net.fexcraft.mod.fvtm.data.container.ContainerHolder;
 import net.fexcraft.mod.fvtm.data.container.ContainerHolder.ContainerHolderWrapper;
+import net.fexcraft.mod.fvtm.data.container.ContainerSlot;
 import net.fexcraft.mod.fvtm.data.container.ContainerType;
 import net.minecraft.util.math.Vec3d;
 
@@ -18,13 +20,21 @@ public class BEWrapper implements ContainerHolderWrapper {
 
 	@Override
 	public Vec3d getContainerSlotPosition(String slotid, ContainerHolder capability){
-		return null;
+		ContainerSlot slot = capability.getContainerSlot(slotid);
+		if(slot == null) return new Vec3d(0, 0, 0);
+		Point3d point = new Point3d(slot.position.x, slot.position.y, slot.position.z);
+		point.rotateFine(entity.entity.angles).add(.375, 0, .375);
+		return new Vec3d(point.x, point.y, point.z);
 	}
-
+	
 	@Override
-	public Vec3d getContainerInSlotPosition(String slot, ContainerHolder capability, ContainerType type, int index){
-		// TODO Auto-generated method stub
-		return null;
+	public Vec3d getContainerInSlotPosition(String slotid, ContainerHolder capability, ContainerType type, int index){
+		ContainerSlot slot = capability.getContainerSlot(slotid);
+		if(slot == null) return new Vec3d(0, 0, 0);
+        float off = index + (type.length() / 2f) - (slot.length / 2f);
+		Point3d point = new Point3d(slot.position.x - off, slot.position.y, slot.position.z);
+		point.rotateFine(entity.entity.angles).add(.375, 0, .375);
+		return new Vec3d(point.x, point.y, point.z);
 	}
 
 	public ContainerHolder getCapability(){
