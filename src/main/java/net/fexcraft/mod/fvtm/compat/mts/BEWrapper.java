@@ -10,6 +10,7 @@ import net.minecraft.util.math.Vec3d;
 public class BEWrapper implements ContainerHolderWrapper {
 
 	private BuilderEntity entity;
+	private Tracker tracker;
 
 	public BEWrapper(BuilderEntity entity){
 		this.entity = entity;
@@ -28,6 +29,19 @@ public class BEWrapper implements ContainerHolderWrapper {
 
 	public ContainerHolder getCapability(){
 		return entity.getCapability(Capabilities.CONTAINER, null);
+	}
+
+	public Tracker getTracker(){
+		return tracker;
+	}
+	
+	public BEWrapper setTracker(Tracker inst){
+		tracker = inst;
+		return this;
+	}
+
+	public BuilderEntity getEntity(){
+		return entity;
 	}
 
 }

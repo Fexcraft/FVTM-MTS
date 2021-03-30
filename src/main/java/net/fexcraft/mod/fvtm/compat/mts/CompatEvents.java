@@ -84,6 +84,10 @@ public class CompatEvents {
 		holder.addContainerSlot(slot);
 		Print.log("Included ContainerSlot(" + length + ") into " + entity);
 		holder.sync(entity.world.isRemote);
+		if(!wrapper.getEntity().world.isRemote && wrapper.getTracker() == null){
+			wrapper.setTracker(new Tracker(wrapper, wrapper.getEntity().entity.position));
+			wrapper.getEntity().world.spawnEntity(wrapper.getTracker());
+		}
 	}
 	
 	@SubscribeEvent
