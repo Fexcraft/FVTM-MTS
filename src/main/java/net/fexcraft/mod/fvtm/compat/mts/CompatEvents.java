@@ -28,7 +28,7 @@ public class CompatEvents {
 	public static ConcurrentLinkedQueue<BuilderEntity> tracked = new ConcurrentLinkedQueue<>();
 	//we'll track them till we're sure
 	
-	public static String CONID = "fvtm_container";
+	public static String SPECIFIC = "fvtm_container", CON_SINGLE = "container_single", CON_DOUBLE = "container_double", CON_EXTENDED = "cotainer_extended";
 	
 	public CompatEvents(){}
 	
@@ -37,7 +37,7 @@ public class CompatEvents {
 		if(event.getObject().world == null) return;
 		if(event.getObject() instanceof BuilderEntity){
 			tracked.add((BuilderEntity)event.getObject());
-			event.addCapability(new ResourceLocation(CONID), new ContainerHolderUtil(event.getObject()));
+			event.addCapability(new ResourceLocation("fvtm:container"), new ContainerHolderUtil(event.getObject()));
 			if(event.getObject().world.isRemote){
 				event.addCapability(new ResourceLocation("fvtm:rendercache"), new RenderCacheHandler());
 			}
@@ -51,10 +51,11 @@ public class CompatEvents {
 			if(entity.entity != null){
 				if(entity.entity instanceof EntityVehicleF_Physics){
 					EntityVehicleF_Physics ent = (EntityVehicleF_Physics)entity.entity;
+					int found = 0;
 					for(JSONPartDefinition part : ent.definition.parts){
 						for(String str : part.types){
-							if(str.contains(CONID)){
-								includeContainer(entity, part, str);
+							if(str.endsWith(CON_SINGLE) || str.endsWith(CON_DOUBLE) || str.endsWith(CON_EXTENDED) || str.startsWith(SPECIFIC)){
+								if(includeContainer(entity, part, str, found)) found++;
 								break;
 							}
 						}
@@ -66,7 +67,7 @@ public class CompatEvents {
 		});
 	}
 
-	private void includeContainer(BuilderEntity entity, JSONPartDefinition part, String str){
+	private boolean includeContainer(BuilderEntity entity, JSONPartDefinition part, String str, int found){
 		BEWrapper wrapper = wrappers.get(entity);
 		if(wrapper == null){
 			wrapper = new BEWrapper(entity);
@@ -74,11 +75,24 @@ public class CompatEvents {
 		}
 		ContainerHolder holder = wrapper.getCapability();
 		if(holder.getWrapper() == null) holder.setWrapper(wrapper);
-		String[] info = str.split(":");
-		String slotid = info[1];
-		byte length = info.length > 2 ? Byte.parseByte(info[2]) : 6;
+		boolean specific = str.startsWith(SPECIFIC);
+		byte length = 6;
+		String slotid;
+		float rot;
+		if(specific){
+			String[] info = str.split(":");
+			slotid = info[1];
+			length = info.length > 2 ? Byte.parseByte(info[2]) : 6;
+			rot = info.length > 3 ? Integer.parseInt(info[3]) : 0;
+		}
+		else{
+			if(str.endsWith(CON_SINGLE)) length = 6;
+			if(str.endsWith(CON_DOUBLE)) length = 12;
+			if(str.endsWith(CON_EXTENDED)) length = 14;
+			slotid = "container_" + found;
+			rot = 0;
+		}
 		Vec3d pos = new Vec3d(part.pos.x, part.pos.y, part.pos.z);
-		float rot = info.length > 3 ? Integer.parseInt(info[3]) : 0;
 		ContainerSlot slot = new ContainerSlot(slotid, length, pos.add(.375, 0, -.375), rot, null, null);
 		//slot.setContainer(0, new ContainerData(Resources.CONTAINERS.getValue(new ResourceLocation("hcp:medium"))));
 		holder.addContainerSlot(slot);
@@ -88,6 +102,7 @@ public class CompatEvents {
 			wrapper.setTracker(new Tracker(wrapper, wrapper.getEntity().entity.position));
 			wrapper.getEntity().world.spawnEntity(wrapper.getTracker());
 		}
+		return !specific;
 	}
 
 	public static BEWrapper getWrapper(BuilderEntity entity){
@@ -100,7 +115,6 @@ public class CompatEvents {
 		Print.debug(event.getEntity());
 		if((event.getEntityPlayer().getHeldItemMainhand().getItem() instanceof ContainerItem || event.getEntityPlayer().getHeldItemMainhand().getItem() instanceof ItemTool) && event.getTarget() instanceof BuilderEntity){
 			BuilderEntity ent = (BuilderEntity)event.getTarget();
-			Print.debug(ent, ent.entity);
 			if(ent.entity == null) return;
 			BEWrapper wrapper = wrappers.get(ent);
 			if(wrapper == null || wrapper.getCapability().getContainerSlots().length == 0) return;
