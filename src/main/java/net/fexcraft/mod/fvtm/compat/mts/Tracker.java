@@ -2,7 +2,7 @@ package net.fexcraft.mod.fvtm.compat.mts;
 
 import io.netty.buffer.ByteBuf;
 import minecrafttransportsimulator.baseclasses.Point3d;
-import minecrafttransportsimulator.mcinterface.BuilderEntity;
+import minecrafttransportsimulator.mcinterface.BuilderEntityExisting;
 import net.fexcraft.lib.mc.utils.Print;
 import net.fexcraft.mod.fvtm.data.Capabilities;
 import net.fexcraft.mod.fvtm.item.ContainerItem;
@@ -18,7 +18,7 @@ import net.minecraftforge.fml.common.registry.IEntityAdditionalSpawnData;
 public class Tracker extends Entity implements IEntityAdditionalSpawnData {
 
 	public int entityid = -1;
-	public BuilderEntity entity;
+	public BuilderEntityExisting entity;
 	public BEWrapper wrapper;
 	
 	public Tracker(World world){
@@ -42,7 +42,7 @@ public class Tracker extends Entity implements IEntityAdditionalSpawnData {
 	public void readSpawnData(ByteBuf buffer){
 		entityid = buffer.readInt();
 		Entity ent = world.getEntityByID(entityid);
-		if(ent != null) entity = (BuilderEntity)ent;
+		if(ent != null) entity = (BuilderEntityExisting)ent;
 		Print.debug("Linked Tracker for " + entity);
 	}
 
@@ -74,7 +74,7 @@ public class Tracker extends Entity implements IEntityAdditionalSpawnData {
 		if(entity == null){
 			Entity ent = world.getEntityByID(entityid);
 			if(ent != null){
-				entity = (BuilderEntity)ent;
+				entity = (BuilderEntityExisting)ent;
 				wrapper = CompatEvents.getWrapper(entity);
 			}
 			Print.debug("Linked Tracker to " + entity);

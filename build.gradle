@@ -7,6 +7,7 @@ allprojects {
 }
 buildscript {
     repositories {
+    	maven { url = "https://sizableshrimp.me/maven"}
         jcenter()
         maven { url = "http://files.minecraftforge.net/maven" }
     }
@@ -53,7 +54,7 @@ dependencies {
 		compile 'com.github.Fexcraft:FCL:1.12.2-SNAPSHOT'
 		compile 'com.github.Fexcraft:FVTM:1.12.2-SNAPSHOT'
 	}
-	compileOnly('com.github.DonBruce64:MinecraftTransportSimulator:master-SNAPSHOT'){
+	compile ('com.github.DonBruce64:MinecraftTransportSimulator:master-SNAPSHOT'){
         changing=true
     }
 

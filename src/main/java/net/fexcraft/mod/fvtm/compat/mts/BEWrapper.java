@@ -1,7 +1,7 @@
 package net.fexcraft.mod.fvtm.compat.mts;
 
 import minecrafttransportsimulator.baseclasses.Point3d;
-import minecrafttransportsimulator.mcinterface.BuilderEntity;
+import minecrafttransportsimulator.mcinterface.BuilderEntityExisting;
 import net.fexcraft.mod.fvtm.data.Capabilities;
 import net.fexcraft.mod.fvtm.data.container.ContainerHolder;
 import net.fexcraft.mod.fvtm.data.container.ContainerHolder.ContainerHolderWrapper;
@@ -11,10 +11,10 @@ import net.minecraft.util.math.Vec3d;
 
 public class BEWrapper implements ContainerHolderWrapper {
 
-	private BuilderEntity entity;
+	private BuilderEntityExisting entity;
 	private Tracker tracker;
 
-	public BEWrapper(BuilderEntity entity){
+	public BEWrapper(BuilderEntityExisting entity){
 		this.entity = entity;
 	}
 
@@ -52,7 +52,7 @@ public class BEWrapper implements ContainerHolderWrapper {
 		return this;
 	}
 
-	public BuilderEntity getEntity(){
+	public BuilderEntityExisting getEntity(){
 		return entity;
 	}
 

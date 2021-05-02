@@ -5,7 +5,7 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 
 import minecrafttransportsimulator.entities.instances.EntityVehicleF_Physics;
 import minecrafttransportsimulator.jsondefs.JSONPartDefinition;
-import minecrafttransportsimulator.mcinterface.BuilderEntity;
+import minecrafttransportsimulator.mcinterface.BuilderEntityExisting;
 import net.fexcraft.lib.mc.utils.Print;
 import net.fexcraft.mod.fvtm.data.container.ContainerHolder;
 import net.fexcraft.mod.fvtm.data.container.ContainerSlot;
@@ -24,8 +24,8 @@ import net.minecraftforge.fml.common.gameevent.TickEvent.WorldTickEvent;
 
 public class CompatEvents {
 	
-	public static HashMap<BuilderEntity, BEWrapper> wrappers = new HashMap<>();
-	public static ConcurrentLinkedQueue<BuilderEntity> tracked = new ConcurrentLinkedQueue<>();
+	public static HashMap<BuilderEntityExisting, BEWrapper> wrappers = new HashMap<>();
+	public static ConcurrentLinkedQueue<BuilderEntityExisting> tracked = new ConcurrentLinkedQueue<>();
 	//we'll track them till we're sure
 	
 	public static String SPECIFIC = "fvtm_container", CON_SINGLE = "container_single", CON_DOUBLE = "container_double", CON_EXTENDED = "cotainer_extended";
@@ -35,8 +35,8 @@ public class CompatEvents {
 	@SubscribeEvent
 	public void onAttachEntityCapabilities(AttachCapabilitiesEvent<Entity> event){
 		if(event.getObject().world == null) return;
-		if(event.getObject() instanceof BuilderEntity){
-			tracked.add((BuilderEntity)event.getObject());
+		if(event.getObject() instanceof BuilderEntityExisting){
+			tracked.add((BuilderEntityExisting)event.getObject());
 			event.addCapability(new ResourceLocation("fvtm:container"), new ContainerHolderUtil(event.getObject()));
 			if(event.getObject().world.isRemote){
 				event.addCapability(new ResourceLocation("fvtm:rendercache"), new RenderCacheHandler());
@@ -67,7 +67,7 @@ public class CompatEvents {
 		});
 	}
 
-	private boolean includeContainer(BuilderEntity entity, JSONPartDefinition part, String str, int found){
+	private boolean includeContainer(BuilderEntityExisting entity, JSONPartDefinition part, String str, int found){
 		BEWrapper wrapper = wrappers.get(entity);
 		if(wrapper == null){
 			wrapper = new BEWrapper(entity);
@@ -105,7 +105,7 @@ public class CompatEvents {
 		return !specific;
 	}
 
-	public static BEWrapper getWrapper(BuilderEntity entity){
+	public static BEWrapper getWrapper(BuilderEntityExisting entity){
 		return wrappers.get(entity);
 	}
 	
@@ -113,8 +113,8 @@ public class CompatEvents {
 	public void onInteract(EntityInteractSpecific event){
 		if(event.getSide().isClient()) return;
 		Print.debug(event.getEntity());
-		if((event.getEntityPlayer().getHeldItemMainhand().getItem() instanceof ContainerItem || event.getEntityPlayer().getHeldItemMainhand().getItem() instanceof ItemTool) && event.getTarget() instanceof BuilderEntity){
-			BuilderEntity ent = (BuilderEntity)event.getTarget();
+		if((event.getEntityPlayer().getHeldItemMainhand().getItem() instanceof ContainerItem || event.getEntityPlayer().getHeldItemMainhand().getItem() instanceof ItemTool) && event.getTarget() instanceof BuilderEntityExisting){
+			BuilderEntityExisting ent = (BuilderEntityExisting)event.getTarget();
 			if(ent.entity == null) return;
 			BEWrapper wrapper = wrappers.get(ent);
 			if(wrapper == null || wrapper.getCapability().getContainerSlots().length == 0) return;

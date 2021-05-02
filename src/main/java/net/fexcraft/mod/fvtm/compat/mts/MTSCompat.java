@@ -8,15 +8,19 @@ import net.minecraftforge.fml.common.event.FMLInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
 import net.minecraftforge.fml.common.registry.EntityRegistry;
 
-@Mod(modid = MTSCompat.MODID, name = MTSCompat.NAME, version = MTSCompat.VERSION)
+@Mod(modid = MTSCompat.MODID, name = MTSCompat.NAME, version = MTSCompat.VERSION, dependencies = "required-after:fcl;required-after:fvtm")
 public class MTSCompat {
 	
     public static final String MODID = "fvtm_mts";
     public static final String NAME = "FVTM MTS Compat";
     public static final String VERSION = "1.0";
+    //public static Item ITEM = new Item();
 
     @EventHandler
     public void preInit(FMLPreInitializationEvent event){
+    	//FCLRegistry.newAutoRegistry(MODID).addItem("container_item", ITEM, 0, null);
+    	//PackParserSystem.addItemPartCreator(new ContainerPartItem.Creator());
+    	//PackParserSystem.registerItem(new ContainerJsonItem());
         MinecraftForge.EVENT_BUS.register(new CompatEvents());
 		EntityRegistry.registerModEntity(new ResourceLocation("fvtm_mts:tracker"), Tracker.class, "fvtm_mts.tracker", 0, this, 512, 1, false);
         if(event.getSide().isClient()){
