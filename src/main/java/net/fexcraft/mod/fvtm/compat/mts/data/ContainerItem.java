@@ -6,7 +6,6 @@ public class ContainerItem extends BuilderItem {
 
 	public ContainerItem(ContainerPartItem conpart){
 		super(conpart);
-		//itemMap.remove(this.item);
 	}
 
 }
