@@ -15,7 +15,7 @@ public class ContainerJsonPart extends JSONPart {
 		general.name = (type.equals("single") ? "Single" : "Double") + " Container";
 		general.stackSize = 1;
 		classification = ItemClassification.ITEM;
-		systemName = "fvtm_compat_container_" + type;
+		systemName = "container_holder_" + type;
 		packID = "fvtm_mts";
 	}
 
