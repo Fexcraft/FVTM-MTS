@@ -2,6 +2,7 @@ package net.fexcraft.mod.fvtm.compat.mts.data;
 
 import minecrafttransportsimulator.jsondefs.JSONPart;
 import minecrafttransportsimulator.packloading.PackResourceLoader.ItemClassification;
+import net.fexcraft.lib.mc.utils.Formatter;
 
 public class ContainerJsonPart extends JSONPart {
 	
@@ -13,7 +14,9 @@ public class ContainerJsonPart extends JSONPart {
 		interactable = new JSONPartInteractable();
 		interactable.interactionType = InteractableComponentType.CRATE;
 		general = new General();
-		general.description = "FVTM Compat Container Slot Provider\nSize: " + (type.equals("single") ? 6 : 12);
+		general.description = Formatter.PARAGRAPH_SIGN + "6FVTM <-> MTS (Immersive Vehicles) Compat\n"
+							+ Formatter.PARAGRAPH_SIGN + "eContainer Slot Provider Part for IV Vehicles\n"
+							+ Formatter.PARAGRAPH_SIGN + "7Size: " + (type.equals("single") ? 6 : 12) + " / " + type;
 		general.name = (type.equals("single") ? "Single" : "Double") + " Container";
 		general.stackSize = 1;
 		classification = ItemClassification.PART;
