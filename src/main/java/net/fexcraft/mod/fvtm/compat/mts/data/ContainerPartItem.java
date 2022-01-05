@@ -15,12 +15,12 @@ public class ContainerPartItem extends AItemPart {
 	private boolean single;
 	
 	public ContainerPartItem(ContainerJsonPart conpart, boolean single){
-		super(conpart, null, MTSCompat.MODID);
+		super(conpart, "", MTSCompat.MODID);
 		this.single = single;
 	}
 
 	@Override
-	public APart createPart(AEntityE_Multipart<?> entity, WrapperPlayer placingPlayer, JSONPartDefinition packVehicleDef, WrapperNBT partData, APart parentPart) {
+	public APart createPart(AEntityE_Multipart<?> entity, WrapperPlayer placingPlayer, JSONPartDefinition packVehicleDef, WrapperNBT partData, APart parentPart){
 		return new ContainerPart(entity, placingPlayer, packVehicleDef, partData, parentPart);
 	}
 	
