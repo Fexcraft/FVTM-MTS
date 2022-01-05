@@ -6,6 +6,7 @@ import net.fexcraft.mod.fvtm.compat.mts.data.ContainerItem;
 import net.fexcraft.mod.fvtm.compat.mts.data.ContainerJsonPart;
 import net.fexcraft.mod.fvtm.compat.mts.data.ContainerPartItem;
 import net.fexcraft.mod.fvtm.compat.mts.data.ContainerPartItemCreator;
+import net.minecraft.item.Item;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.common.Mod;
@@ -25,16 +26,16 @@ public class MTSCompat {
 	public static ContainerJsonPart CON_PART_DOUBLE = new ContainerJsonPart("double");
 	public static ContainerPartItem CON_ITEM_SINGLE = new ContainerPartItem(CON_PART_SINGLE, true);
 	public static ContainerPartItem CON_ITEM_DOUBLE = new ContainerPartItem(CON_PART_DOUBLE, false);
+	private Item con0, con1;
 	//TODO "extended" type support in future?
 
     @EventHandler
     public void preInit(FMLPreInitializationEvent event){
-    	PackParserSystem.addItemPartCreator(new ContainerPartItemCreator(CON_ITEM_SINGLE));
-    	PackParserSystem.addItemPartCreator(new ContainerPartItemCreator(CON_ITEM_DOUBLE));
+    	PackParserSystem.addItemPartCreator(new ContainerPartItemCreator());
     	PackParserSystem.registerItem(CON_PART_SINGLE);
     	PackParserSystem.registerItem(CON_PART_DOUBLE);
-    	FCLRegistry.newAutoRegistry(MODID).addItem("container_single", new ContainerItem(CON_ITEM_SINGLE), 0, null);
-    	FCLRegistry.getAutoRegistry(MODID).addItem("container_double", new ContainerItem(CON_ITEM_DOUBLE), 0, null);
+    	FCLRegistry.newAutoRegistry(MODID).addItem("container_single", con0 = new ContainerItem(CON_ITEM_SINGLE), 0, null);
+    	FCLRegistry.getAutoRegistry(MODID).addItem("container_double", con1 = new ContainerItem(CON_ITEM_DOUBLE), 0, null);
     	
     	
     	// old compat code bellow
@@ -48,6 +49,6 @@ public class MTSCompat {
 
     @EventHandler
     public void init(FMLInitializationEvent event){
-    	//
+        //
     }
 }
