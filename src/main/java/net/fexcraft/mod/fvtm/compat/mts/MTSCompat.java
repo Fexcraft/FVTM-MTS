@@ -26,7 +26,7 @@ public class MTSCompat {
 	public static ContainerJsonPart CON_PART_DOUBLE = new ContainerJsonPart("double");
 	public static ContainerPartItem CON_ITEM_SINGLE = new ContainerPartItem(CON_PART_SINGLE, true);
 	public static ContainerPartItem CON_ITEM_DOUBLE = new ContainerPartItem(CON_PART_DOUBLE, false);
-	private Item con0, con1;
+	public static Item CON_SINGLE, CON_DOUBLE;
 	//TODO "extended" type support in future?
 
     @EventHandler
@@ -34,8 +34,8 @@ public class MTSCompat {
     	PackParserSystem.addItemPartCreator(new ContainerPartItemCreator());
     	PackParserSystem.registerItem(CON_PART_SINGLE);
     	PackParserSystem.registerItem(CON_PART_DOUBLE);
-    	FCLRegistry.newAutoRegistry(MODID).addItem("container_single", con0 = new ContainerItem(CON_ITEM_SINGLE), 0, null);
-    	FCLRegistry.getAutoRegistry(MODID).addItem("container_double", con1 = new ContainerItem(CON_ITEM_DOUBLE), 0, null);
+    	FCLRegistry.newAutoRegistry(MODID).addItem("container_single", CON_SINGLE = new ContainerItem(CON_ITEM_SINGLE), 0, null);
+    	FCLRegistry.getAutoRegistry(MODID).addItem("container_double", CON_DOUBLE = new ContainerItem(CON_ITEM_DOUBLE), 0, null);
     	
     	
     	// old compat code bellow
