@@ -1,26 +1,19 @@
 package net.fexcraft.mod.fvtm.compat.mts;
 
 import java.util.HashMap;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
-import minecrafttransportsimulator.entities.instances.EntityVehicleF_Physics;
-import minecrafttransportsimulator.jsondefs.JSONPartDefinition;
+import minecrafttransportsimulator.entities.instances.APart;
 import minecrafttransportsimulator.mcinterface.BuilderEntityExisting;
-import net.fexcraft.lib.mc.utils.Print;
-import net.fexcraft.mod.fvtm.data.container.ContainerHolder;
-import net.fexcraft.mod.fvtm.data.container.ContainerSlot;
-import net.fexcraft.mod.fvtm.item.ContainerItem;
+import minecrafttransportsimulator.mcinterface.WrapperEntity;
+import net.fexcraft.mod.fvtm.compat.mts.data.ContainerPart;
 import net.fexcraft.mod.fvtm.util.caps.ContainerHolderUtil;
 import net.fexcraft.mod.fvtm.util.caps.RenderCacheHandler;
 import net.minecraft.entity.Entity;
-import net.minecraft.item.ItemTool;
 import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.math.Vec3d;
 import net.minecraftforge.event.AttachCapabilitiesEvent;
-import net.minecraftforge.event.entity.player.PlayerInteractEvent.EntityInteractSpecific;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
-import net.minecraftforge.fml.common.gameevent.TickEvent.Phase;
-import net.minecraftforge.fml.common.gameevent.TickEvent.WorldTickEvent;
 
 public class CompatEvents {
 	
@@ -28,7 +21,8 @@ public class CompatEvents {
 	public static ConcurrentLinkedQueue<BuilderEntityExisting> tracked = new ConcurrentLinkedQueue<>();
 	//we'll track them till we're sure
 	
-	public static String SPECIFIC = "fvtm_container", CON_SINGLE = "container_single", CON_DOUBLE = "container_double", CON_EXTENDED = "cotainer_extended";
+	public static ConcurrentHashMap<APart, BuilderEntityExisting> EXISTING_CLIENT = new ConcurrentHashMap<>();
+	public static ConcurrentHashMap<APart, BuilderEntityExisting> EXISTING_SERVER = new ConcurrentHashMap<>();
 	
 	public CompatEvents(){}
 	
@@ -36,7 +30,10 @@ public class CompatEvents {
 	public void onAttachEntityCapabilities(AttachCapabilitiesEvent<Entity> event){
 		if(event.getObject().world == null) return;
 		if(event.getObject() instanceof BuilderEntityExisting){
-			tracked.add((BuilderEntityExisting)event.getObject());
+			//tracked.add((BuilderEntityExisting)event.getObject());
+			WrapperEntity ent = WrapperEntity.getWrapperFor(event.getObject());
+			if(ent.getBaseEntity() instanceof ContainerPart == false) return;
+			(ent.getWorld().isClient() ? EXISTING_CLIENT : EXISTING_SERVER).put((APart)ent.getBaseEntity(), (BuilderEntityExisting)event.getObject());
 			event.addCapability(new ResourceLocation("fvtm:container"), new ContainerHolderUtil(event.getObject()));
 			if(event.getObject().world.isRemote){
 				event.addCapability(new ResourceLocation("fvtm:rendercache"), new RenderCacheHandler());
@@ -44,7 +41,7 @@ public class CompatEvents {
 		}
 	}
 	
-	@SubscribeEvent
+	/*@SubscribeEvent
 	public void worldTick(WorldTickEvent event){
 		if(event.phase == Phase.START) return;
 		tracked.removeIf(entity -> {
@@ -107,20 +104,6 @@ public class CompatEvents {
 
 	public static BEWrapper getWrapper(BuilderEntityExisting entity){
 		return wrappers.get(entity);
-	}
-	
-	@SubscribeEvent
-	public void onInteract(EntityInteractSpecific event){
-		if(event.getSide().isClient()) return;
-		Print.debug(event.getEntity());
-		if((event.getEntityPlayer().getHeldItemMainhand().getItem() instanceof ContainerItem || event.getEntityPlayer().getHeldItemMainhand().getItem() instanceof ItemTool) && event.getTarget() instanceof BuilderEntityExisting){
-			BuilderEntityExisting ent = (BuilderEntityExisting)event.getTarget();
-			if(ent.entity == null) return;
-			BEWrapper wrapper = wrappers.get(ent);
-			if(wrapper == null || wrapper.getCapability().getContainerSlots().length == 0) return;
-			wrapper.getCapability().openGUI(event.getEntityPlayer());
-			event.setCanceled(true);
-		}
-	}
+	}*/
 
 }
