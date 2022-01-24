@@ -4,9 +4,9 @@ import minecrafttransportsimulator.baseclasses.Point3d;
 import minecrafttransportsimulator.entities.instances.APart;
 import minecrafttransportsimulator.mcinterface.InterfaceClient;
 import minecrafttransportsimulator.rendering.instances.RenderPart;
-import net.fexcraft.lib.tmt.ModelBase;
-import net.fexcraft.mod.fvtm.model.DebugModels;
-import net.fexcraft.mod.fvtm.util.Resources;
+import net.fexcraft.mod.fvtm.compat.mts.CompatEvents;
+import net.fexcraft.mod.fvtm.data.Capabilities;
+import net.minecraft.entity.Entity;
 
 public class ContainerRenderPart extends RenderPart {
 	
@@ -33,8 +33,8 @@ public class ContainerRenderPart extends RenderPart {
 		entity.world.beginProfiling("LightStateUpdates", true);
         entity.updateLightBrightness(partialTicks);
         entity.world.beginProfiling("RenderingMainModel", false);
-        ModelBase.bindTexture(Resources.NULL_TEXTURE);
-		DebugModels.CENTERSPHERE.render(1f);
+        Entity ent = CompatEvents.EXISTING_CLIENT.get(entity);
+        if(ent != null) ent.getCapability(Capabilities.CONTAINER, null).render(0, 0, 0, 0, 0, 0);
 	}
 
 }
