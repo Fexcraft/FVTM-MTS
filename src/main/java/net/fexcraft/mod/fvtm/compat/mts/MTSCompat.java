@@ -7,6 +7,7 @@ import net.fexcraft.mod.fvtm.compat.mts.data.ContainerJsonPart;
 import net.fexcraft.mod.fvtm.compat.mts.data.ContainerPartItem;
 import net.fexcraft.mod.fvtm.compat.mts.data.ContainerPartItemCreator;
 import net.minecraft.item.Item;
+import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.Mod.EventHandler;
 import net.minecraftforge.fml.common.event.FMLInitializationEvent;
@@ -36,7 +37,7 @@ public class MTSCompat {
     	
     	
     	// old compat code bellow
-        //MinecraftForge.EVENT_BUS.register(new CompatEvents());
+        MinecraftForge.EVENT_BUS.register(new CompatEvents());
 		//EntityRegistry.registerModEntity(new ResourceLocation("fvtm_mts:tracker"), Tracker.class, "fvtm_mts.tracker", 0, this, 512, 1, false);
         //if(event.getSide().isClient()){
         //	MinecraftForge.EVENT_BUS.register(new net.fexcraft.mod.fvtm.compat.mts.RenderEvents());
