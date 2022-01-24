@@ -20,6 +20,9 @@ public class ContainerPartItem extends AItemPart {
 
 	@Override
 	public APart createPart(AEntityF_Multipart<?> entity, WrapperPlayer placingPlayer, JSONPartDefinition packVehicleDef, WrapperNBT partData, APart parentPart){
+		partData.setString("packID", MTSCompat.MODID);
+		partData.setString("systemName", "container_holder_" + (single ? "single" : "double"));
+		partData.setString("subName", "");
 		return new ContainerPart(entity, placingPlayer, packVehicleDef, partData, parentPart);
 	}
 	
