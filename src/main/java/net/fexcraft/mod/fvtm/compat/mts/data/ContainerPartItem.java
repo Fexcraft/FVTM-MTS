@@ -23,6 +23,7 @@ public class ContainerPartItem extends AItemPart {
 		partData.setString("packID", MTSCompat.MODID);
 		partData.setString("systemName", "container_holder_" + (single ? "single" : "double"));
 		partData.setString("subName", "");
+		partData.setInteger("fvtm_mts_size", single ? 6 : 12);
 		return new ContainerPart(entity, placingPlayer, packVehicleDef, partData, parentPart);
 	}
 	
