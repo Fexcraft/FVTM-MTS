@@ -1,28 +1,34 @@
 package net.fexcraft.mod.fvtm.compat.mts;
 
-import java.util.HashMap;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
+import minecrafttransportsimulator.entities.components.AEntityF_Multipart;
 import minecrafttransportsimulator.entities.instances.APart;
+import minecrafttransportsimulator.entities.instances.EntityVehicleF_Physics;
 import minecrafttransportsimulator.mcinterface.BuilderEntityExisting;
 import minecrafttransportsimulator.mcinterface.WrapperEntity;
+import net.fexcraft.lib.mc.utils.Print;
 import net.fexcraft.mod.fvtm.compat.mts.data.ContainerPart;
+import net.fexcraft.mod.fvtm.data.container.ContainerData;
+import net.fexcraft.mod.fvtm.data.container.ContainerHolder;
+import net.fexcraft.mod.fvtm.data.container.ContainerSlot;
+import net.fexcraft.mod.fvtm.util.Resources;
 import net.fexcraft.mod.fvtm.util.caps.ContainerHolderUtil;
 import net.fexcraft.mod.fvtm.util.caps.RenderCacheHandler;
 import net.minecraft.entity.Entity;
 import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.math.Vec3d;
 import net.minecraftforge.event.AttachCapabilitiesEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
+import net.minecraftforge.fml.common.gameevent.TickEvent.Phase;
+import net.minecraftforge.fml.common.gameevent.TickEvent.WorldTickEvent;
 
 public class CompatEvents {
 	
-	public static HashMap<BuilderEntityExisting, BEWrapper> wrappers = new HashMap<>();
 	public static ConcurrentLinkedQueue<BuilderEntityExisting> tracked = new ConcurrentLinkedQueue<>();
+	public static ConcurrentHashMap<BuilderEntityExisting, BEEWrapper> bee_wrappers = new ConcurrentHashMap<>();
 	//we'll track them till we're sure
-	
-	public static ConcurrentHashMap<APart, BuilderEntityExisting> EXISTING_CLIENT = new ConcurrentHashMap<>();
-	public static ConcurrentHashMap<APart, BuilderEntityExisting> EXISTING_SERVER = new ConcurrentHashMap<>();
 	
 	public CompatEvents(){}
 	
@@ -30,10 +36,7 @@ public class CompatEvents {
 	public void onAttachEntityCapabilities(AttachCapabilitiesEvent<Entity> event){
 		if(event.getObject().world == null) return;
 		if(event.getObject() instanceof BuilderEntityExisting){
-			//tracked.add((BuilderEntityExisting)event.getObject());
-			WrapperEntity ent = WrapperEntity.getWrapperFor(event.getObject());
-			if(ent.getBaseEntity() instanceof ContainerPart == false) return;
-			(ent.getWorld().isClient() ? EXISTING_CLIENT : EXISTING_SERVER).put((APart)ent.getBaseEntity(), (BuilderEntityExisting)event.getObject());
+			tracked.add((BuilderEntityExisting)event.getObject());
 			event.addCapability(new ResourceLocation("fvtm:container"), new ContainerHolderUtil(event.getObject()));
 			if(event.getObject().world.isRemote){
 				event.addCapability(new ResourceLocation("fvtm:rendercache"), new RenderCacheHandler());
@@ -41,20 +44,21 @@ public class CompatEvents {
 		}
 	}
 	
-	/*@SubscribeEvent
+	@SubscribeEvent
 	public void worldTick(WorldTickEvent event){
 		if(event.phase == Phase.START) return;
 		tracked.removeIf(entity -> {
-			if(entity.entity != null){
-				if(entity.entity instanceof EntityVehicleF_Physics){
-					EntityVehicleF_Physics ent = (EntityVehicleF_Physics)entity.entity;
+			WrapperEntity ent = WrapperEntity.getWrapperFor(entity);
+			if(ent.getBaseEntity() != null){
+				if(ent.getBaseEntity() instanceof EntityVehicleF_Physics){
+					EntityVehicleF_Physics entf = (EntityVehicleF_Physics)ent.getBaseEntity();
+					BEEWrapper wrapper = getWrapper(entity);
 					int found = 0;
-					for(JSONPartDefinition part : ent.definition.parts){
-						for(String str : part.types){
-							if(str.endsWith(CON_SINGLE) || str.endsWith(CON_DOUBLE) || str.endsWith(CON_EXTENDED) || str.startsWith(SPECIFIC)){
-								if(includeContainer(entity, part, str, found)) found++;
-								break;
-							}
+					for(APart part : entf.parts){
+						if(part instanceof ContainerPart){
+							ContainerPart conpart = (ContainerPart) part;
+							conpart.con_entity = entity;
+							if(includeContainer(wrapper, conpart, found)) found++;
 						}
 					}
 				}
@@ -64,46 +68,34 @@ public class CompatEvents {
 		});
 	}
 
-	private boolean includeContainer(BuilderEntityExisting entity, JSONPartDefinition part, String str, int found){
-		BEWrapper wrapper = wrappers.get(entity);
-		if(wrapper == null){
-			wrapper = new BEWrapper(entity);
-			wrappers.put(entity, wrapper);
-		}
+	private boolean includeContainer(BEEWrapper wrapper, ContainerPart part, int found){
 		ContainerHolder holder = wrapper.getCapability();
-		if(holder.getWrapper() == null) holder.setWrapper(wrapper);
-		boolean specific = str.startsWith(SPECIFIC);
-		byte length = 6;
-		String slotid;
-		float rot;
-		if(specific){
-			String[] info = str.split(":");
-			slotid = info[1];
-			length = info.length > 2 ? Byte.parseByte(info[2]) : 6;
-			rot = info.length > 3 ? Integer.parseInt(info[3]) : 0;
-		}
-		else{
-			if(str.endsWith(CON_SINGLE)) length = 6;
-			if(str.endsWith(CON_DOUBLE)) length = 12;
-			if(str.endsWith(CON_EXTENDED)) length = 14;
-			slotid = "container_" + found;
-			rot = 0;
-		}
-		Vec3d pos = new Vec3d(part.pos.x, part.pos.y, part.pos.z);
-		ContainerSlot slot = new ContainerSlot(slotid, length, pos.add(.375, 0, -.375), rot, null, null);
-		//slot.setContainer(0, new ContainerData(Resources.CONTAINERS.getValue(new ResourceLocation("hcp:medium"))));
+		byte length = (byte) part.size;
+		String slotid = "container_" + found;
+		Vec3d pos = new Vec3d(part.position.x, part.position.y, part.position.z);
+		ContainerSlot slot = new ContainerSlot(slotid, length, pos.add(.375, 0, -.375), 0, null, null);
+		slot.setContainer(0, new ContainerData(Resources.CONTAINERS.getValue(new ResourceLocation("hcp:medium"))));
 		holder.addContainerSlot(slot);
-		Print.log("Included ContainerSlot(" + length + ") into " + entity);
-		holder.sync(entity.world.isRemote);
+		Print.log("Included ContainerSlot(" + length + ") into " + wrapper);
+		holder.sync(wrapper.getEntity().world.isRemote);
 		if(!wrapper.getEntity().world.isRemote && wrapper.getTracker() == null){
-			wrapper.setTracker(new Tracker(wrapper, wrapper.getEntity().entity.position));
+			wrapper.setTracker(new Tracker(wrapper));
 			wrapper.getEntity().world.spawnEntity(wrapper.getTracker());
 		}
-		return !specific;
+		return true;
 	}
 
-	public static BEWrapper getWrapper(BuilderEntityExisting entity){
-		return wrappers.get(entity);
-	}*/
+	public static void add(ContainerPart part, AEntityF_Multipart<?> entity){
+		// TODO Auto-generated method stub
+		
+	}
+
+	public static BEEWrapper getWrapper(BuilderEntityExisting entity){
+		if(!bee_wrappers.contains(entity)){
+			WrapperEntity ent = WrapperEntity.getWrapperFor(entity);
+			bee_wrappers.put(entity, new BEEWrapper(entity, (EntityVehicleF_Physics)ent.getBaseEntity()));
+		}
+		return bee_wrappers.get(entity);
+	}
 
 }
