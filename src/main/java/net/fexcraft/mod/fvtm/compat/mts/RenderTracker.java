@@ -3,16 +3,21 @@ package net.fexcraft.mod.fvtm.compat.mts;
 import org.lwjgl.opengl.GL11;
 
 import minecrafttransportsimulator.baseclasses.Point3d;
+import net.fexcraft.lib.mc.utils.Print;
 import net.fexcraft.mod.fvtm.data.container.ContainerHolder;
 import net.fexcraft.mod.fvtm.util.Resources;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.entity.Render;
 import net.minecraft.client.renderer.entity.RenderManager;
+import net.minecraft.entity.Entity;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.fml.client.registry.IRenderFactory;
 
 public class RenderTracker extends Render<Tracker> implements IRenderFactory<Tracker> {
 	
 	private static ContainerHolder cap;
+	private static Entity camera;
+	private static double x, y, z;
 
     public RenderTracker(RenderManager renderManager){
         super(renderManager);
@@ -21,11 +26,19 @@ public class RenderTracker extends Render<Tracker> implements IRenderFactory<Tra
 
     @Override
     public void doRender(Tracker tracker, double x, double y, double z, float entity_yaw, float ticks){
-    	if(tracker.entity == null || tracker.entity.entity == null) return;
-    	BEWrapper wrapper = CompatEvents.wrappers.get(tracker.entity);
-    	if(wrapper == null || (cap = wrapper.getCapability()) == null || cap.getContainerSlots().length == 0) return;
+    	if(tracker.entity == null){
+    		Print.debug(tracker.wrapper);
+    		return;
+    	}
+    	if(tracker.wrapper == null || tracker.wrapper.ent == null|| (cap = tracker.wrapper.getCapability()) == null || cap.getContainerSlots().length == 0){
+    		Print.debug(tracker.wrapper);
+    		Print.debug(tracker.wrapper.ent);
+    		Print.debug(cap = tracker.wrapper.getCapability());
+    		Print.debug(cap.getContainerSlots().length);
+    		return;
+    	}
         GL11.glPushMatrix();
-        RenderEvents.translate(ticks);
+        translate(ticks);
         GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
 		/*ContainerSlot slot = wrapper.getCapability().getContainerSlot("cargo");
 		if(slot != null){
@@ -39,9 +52,10 @@ public class RenderTracker extends Render<Tracker> implements IRenderFactory<Tra
 			GL11.glEnable(GL11.GL_TEXTURE_2D);
 			GL11.glPopMatrix();
 		}*/
-		Point3d pos = tracker.entity.entity.prevPosition.getInterpolatedPoint(tracker.entity.entity.position, ticks);
-		Point3d rot = tracker.entity.entity.prevAngles.getInterpolatedPoint(tracker.entity.entity.angles, ticks);
+		Point3d pos = tracker.wrapper.ent.prevPosition.getInterpolatedPoint(tracker.wrapper.ent.position, ticks);
+		Point3d rot = tracker.wrapper.ent.prevAngles.getInterpolatedPoint(tracker.wrapper.ent.angles, ticks);
 		cap.render(pos.x, pos.y, pos.z, rot.y - 90, rot.x, rot.z);
+		Print.debug(pos.x, pos.y, pos.z);
 		GL11.glPopMatrix();
     }
     
@@ -53,6 +67,14 @@ public class RenderTracker extends Render<Tracker> implements IRenderFactory<Tra
     @Override
     public Render<Tracker> createRenderFor(RenderManager manager){
         return new RenderTracker(manager);
+    }
+    
+    public static void translate(float ticks){
+        camera = Minecraft.getMinecraft().getRenderViewEntity();
+        x = camera.lastTickPosX + (camera.posX - camera.lastTickPosX) * ticks;
+        y = camera.lastTickPosY + (camera.posY - camera.lastTickPosY) * ticks;
+        z = camera.lastTickPosZ + (camera.posZ - camera.lastTickPosZ) * ticks;
+        GL11.glTranslated(-x, -y, -z);
     }
 
 }
