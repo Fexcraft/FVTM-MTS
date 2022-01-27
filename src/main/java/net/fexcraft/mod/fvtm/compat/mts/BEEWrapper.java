@@ -1,6 +1,7 @@
 package net.fexcraft.mod.fvtm.compat.mts;
 
 import minecrafttransportsimulator.baseclasses.Point3d;
+import minecrafttransportsimulator.entities.instances.EntityVehicleF_Physics;
 import minecrafttransportsimulator.mcinterface.BuilderEntityExisting;
 import net.fexcraft.mod.fvtm.data.Capabilities;
 import net.fexcraft.mod.fvtm.data.container.ContainerHolder;
@@ -9,13 +10,15 @@ import net.fexcraft.mod.fvtm.data.container.ContainerSlot;
 import net.fexcraft.mod.fvtm.data.container.ContainerType;
 import net.minecraft.util.math.Vec3d;
 
-public class BEWrapper implements ContainerHolderWrapper {
+public class BEEWrapper implements ContainerHolderWrapper {
 
 	private BuilderEntityExisting entity;
+	public EntityVehicleF_Physics ent;
 	private Tracker tracker;
 
-	public BEWrapper(BuilderEntityExisting entity){
+	public BEEWrapper(BuilderEntityExisting entity, EntityVehicleF_Physics ent){
 		this.entity = entity;
+		this.ent = ent;
 	}
 
 	@Override
@@ -23,8 +26,8 @@ public class BEWrapper implements ContainerHolderWrapper {
 		ContainerSlot slot = capability.getContainerSlot(slotid);
 		if(slot == null) return new Vec3d(0, 0, 0);
 		Point3d point = new Point3d(slot.position.x, slot.position.y, slot.position.z);
-		point.rotateFine(entity.entity.angles);
-		point.add(entity.entity.position);
+		point.rotateFine(ent.angles);
+		point.add(ent.position);
 		return new Vec3d(point.x, point.y, point.z);
 	}
 	
@@ -34,8 +37,8 @@ public class BEWrapper implements ContainerHolderWrapper {
 		if(slot == null) return new Vec3d(0, 0, 0);
         float off = index + (type.length() / 2f) - (slot.length / 2f);
 		Point3d point = new Point3d(slot.position.x - off, slot.position.y, slot.position.z);
-		point.rotateFine(entity.entity.angles);
-		point.add(entity.entity.position);
+		point.rotateFine(ent.angles);
+		point.add(ent.position);
 		return new Vec3d(point.x, point.y, point.z);
 	}
 
@@ -47,7 +50,7 @@ public class BEWrapper implements ContainerHolderWrapper {
 		return tracker;
 	}
 	
-	public BEWrapper setTracker(Tracker inst){
+	public BEEWrapper setTracker(Tracker inst){
 		tracker = inst;
 		return this;
 	}
