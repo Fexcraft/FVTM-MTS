@@ -1,8 +1,5 @@
 package net.fexcraft.mod.fvtm.compat.mts.data;
 
-import static net.fexcraft.mod.fvtm.compat.mts.CompatEvents.EXISTING_CLIENT;
-import static net.fexcraft.mod.fvtm.compat.mts.CompatEvents.EXISTING_SERVER;
-
 import java.lang.reflect.Field;
 
 import minecrafttransportsimulator.entities.components.AEntityF_Multipart;
@@ -14,6 +11,7 @@ import minecrafttransportsimulator.mcinterface.WrapperNBT;
 import minecrafttransportsimulator.mcinterface.WrapperPlayer;
 import minecrafttransportsimulator.rendering.instances.RenderPart;
 import net.fexcraft.lib.mc.utils.Print;
+import net.fexcraft.mod.fvtm.compat.mts.CompatEvents;
 import net.fexcraft.mod.fvtm.data.Capabilities;
 import net.fexcraft.mod.fvtm.data.container.ContainerHolder;
 import net.minecraft.entity.Entity;
@@ -21,9 +19,13 @@ import net.minecraft.entity.player.EntityPlayer;
 
 public class ContainerPart extends APart {
 
+	public BuilderEntityExisting con_entity;
+	public int size;
+
 	public ContainerPart(AEntityF_Multipart<?> entityOn, WrapperPlayer player, JSONPartDefinition placementDefinition, WrapperNBT data, APart parentPart){
 		super(entityOn, player, placementDefinition, data, parentPart);
-		//(entityOn.world.isClient() ? CompatEvents.EXISTING_CLIENT : CompatEvents.EXISTING_SERVER).add(this);
+		size = data.getInteger("fvtm_mts_size");
+		CompatEvents.add(this, entityOn);
 	}
 	
 	@Override
@@ -33,16 +35,17 @@ public class ContainerPart extends APart {
 	
 	@Override
 	public void remove(){
-		(entityOn.world.isClient() ? EXISTING_CLIENT : EXISTING_SERVER).remove(this);
 		super.remove();
 	}
 	
 	@Override
 	public boolean interact(WrapperPlayer player){
-		BuilderEntityExisting ent = EXISTING_SERVER.get(this);
-		ContainerHolder holder = ent.getCapability(Capabilities.CONTAINER, null);
+		ContainerHolder holder = con_entity.getCapability(Capabilities.CONTAINER, null);
+		if(holder == null){
+			Print.chat(getEntity(player), "Container Holder is Null, this seems to be an error.");
+			return true;
+		}
 		holder.openGUI((EntityPlayer)getEntity(player));
-		Print.debug("< open gui >");
 		return true;
 	}
 	
@@ -52,15 +55,16 @@ public class ContainerPart extends APart {
 	public static Entity getEntity(WrapperEntity ent){
 		if(entfield == null && !entfailed){
 			try{
-				entfield = APart.class.getField("entity");
+				entfield = WrapperEntity.class.getDeclaredField("entity");
 				entfield.setAccessible(true);
 			}
 			catch(Exception e){
 				Print.log("Failed to get field. [ENTFIELD:ERR:0]");
+				e.printStackTrace();
 				entfailed = true;
 			}
 		}
-		try {
+		try{
 			return (Entity)entfield.get(ent);
 		}
 		catch(IllegalArgumentException | IllegalAccessException e){
