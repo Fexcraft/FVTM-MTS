@@ -4,20 +4,18 @@ import minecrafttransportsimulator.baseclasses.Point3d;
 import minecrafttransportsimulator.entities.instances.APart;
 import minecrafttransportsimulator.mcinterface.InterfaceClient;
 import minecrafttransportsimulator.rendering.instances.RenderPart;
-import net.fexcraft.mod.fvtm.compat.mts.CompatEvents;
 import net.fexcraft.mod.fvtm.data.Capabilities;
-import net.minecraft.entity.Entity;
+import net.fexcraft.mod.fvtm.data.container.ContainerHolder;
 
 public class ContainerRenderPart extends RenderPart {
 	
 	@Override
 	public boolean disableRendering(APart part, float partialTicks){
-		return super.disableRendering(part, partialTicks) || part.isFake() || part.isDisabled;
+		return true;
 	}
 	
 	@Override
 	public void adjustPositionRotation(APart part, Point3d entityPositionDelta, Point3d entityRotationDelta, float partialTicks){
-		//Rotate the part according to its rendering rotation if we need to do so.
 		entityRotationDelta.add(part.getRenderingRotation(partialTicks));
 	}
 	
@@ -30,11 +28,11 @@ public class ContainerRenderPart extends RenderPart {
 	
 	@Override
 	protected void renderModel(APart entity, boolean blendingEnabled, float partialTicks){
-		entity.world.beginProfiling("LightStateUpdates", true);
-        entity.updateLightBrightness(partialTicks);
-        entity.world.beginProfiling("RenderingMainModel", false);
-        Entity ent = CompatEvents.EXISTING_CLIENT.get(entity);
-        if(ent != null) ent.getCapability(Capabilities.CONTAINER, null).render(0, 0, 0, 0, 0, 0);
+		ContainerPart part = (ContainerPart)entity;
+		if(part.con_entity != null){
+			ContainerHolder holder = part.con_entity.getCapability(Capabilities.CONTAINER, null);
+			if(holder != null) holder.render(0, 0, 0, 0, 0, 0);
+		}
 	}
 
 }
