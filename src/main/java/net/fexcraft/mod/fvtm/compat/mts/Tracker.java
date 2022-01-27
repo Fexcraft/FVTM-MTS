@@ -1,8 +1,9 @@
 package net.fexcraft.mod.fvtm.compat.mts;
 
 import io.netty.buffer.ByteBuf;
-import minecrafttransportsimulator.baseclasses.Point3d;
+import minecrafttransportsimulator.entities.instances.EntityVehicleF_Physics;
 import minecrafttransportsimulator.mcinterface.BuilderEntityExisting;
+import minecrafttransportsimulator.mcinterface.WrapperEntity;
 import net.fexcraft.lib.mc.utils.Print;
 import net.fexcraft.mod.fvtm.data.Capabilities;
 import net.fexcraft.mod.fvtm.item.ContainerItem;
@@ -19,18 +20,18 @@ public class Tracker extends Entity implements IEntityAdditionalSpawnData {
 
 	public int entityid = -1;
 	public BuilderEntityExisting entity;
-	public BEWrapper wrapper;
+	public BEEWrapper wrapper;
 	
 	public Tracker(World world){
 		super(world);
 		this.setSize(1.5f, 1.25f);
 	}
 
-	public Tracker(BEWrapper wrapper, Point3d pos){
+	public Tracker(BEEWrapper wrapper){
 		this(wrapper.getEntity().world);
 		entityid = (entity = (this.wrapper = wrapper).getEntity()).getEntityId();
 		Print.debug("Adding Tracker for " + entity);
-		setPosition(pos.x, pos.y, pos.z);
+		setPosition(wrapper.ent.position.x, wrapper.ent.position.y, wrapper.ent.position.z);
 	}
 
 	@Override
@@ -42,8 +43,12 @@ public class Tracker extends Entity implements IEntityAdditionalSpawnData {
 	public void readSpawnData(ByteBuf buffer){
 		entityid = buffer.readInt();
 		Entity ent = world.getEntityByID(entityid);
-		if(ent != null) entity = (BuilderEntityExisting)ent;
-		Print.debug("Linked Tracker for " + entity);
+		if(ent != null){
+			entity = (BuilderEntityExisting)ent;
+			wrapper = CompatEvents.getWrapper(entity);
+			wrapper.setTracker(this);
+		}
+		Print.debug("[0] Linked Tracker for " + entity);
 	}
 
 	@Override
@@ -71,15 +76,19 @@ public class Tracker extends Entity implements IEntityAdditionalSpawnData {
 			}
 			if(entity != null && entity.isDead) this.setDead();
 		}
-		if(entity == null){
+		if(entity == null || wrapper == null){
 			Entity ent = world.getEntityByID(entityid);
 			if(ent != null){
 				entity = (BuilderEntityExisting)ent;
 				wrapper = CompatEvents.getWrapper(entity);
 			}
-			Print.debug("Linked Tracker to " + entity);
+			Print.debug("[1] Linked Tracker to " + entity);
 		}
 		if(entity == null) return;
+		if(wrapper != null && wrapper.ent == null){
+			WrapperEntity we = WrapperEntity.getWrapperFor(entity);
+			wrapper.ent = (EntityVehicleF_Physics)we.getBaseEntity();
+		}
 		this.setPosition(entity.posX, entity.posY, entity.posZ);
 	}
 	
