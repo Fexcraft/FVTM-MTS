@@ -5,12 +5,8 @@ import minecrafttransportsimulator.entities.instances.EntityVehicleF_Physics;
 import minecrafttransportsimulator.mcinterface.BuilderEntityExisting;
 import minecrafttransportsimulator.mcinterface.WrapperEntity;
 import net.fexcraft.lib.mc.utils.Print;
-import net.fexcraft.mod.fvtm.data.Capabilities;
-import net.fexcraft.mod.fvtm.item.ContainerItem;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.ItemTool;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.EnumHand;
 import net.minecraft.world.World;
@@ -24,19 +20,22 @@ public class Tracker extends Entity implements IEntityAdditionalSpawnData {
 	
 	public Tracker(World world){
 		super(world);
-		this.setSize(1.5f, 1.25f);
+		this.setSize(3, 3);
 	}
 
 	public Tracker(BEEWrapper wrapper){
 		this(wrapper.getEntity().world);
 		entityid = (entity = (this.wrapper = wrapper).getEntity()).getEntityId();
 		Print.debug("Adding Tracker for " + entity);
-		setPosition(wrapper.ent.position.x, wrapper.ent.position.y, wrapper.ent.position.z);
+		setPosition(entity.posX, entity.posY, entity.posZ);
 	}
 
 	@Override
 	public void writeSpawnData(ByteBuf buffer){
 		buffer.writeInt(entityid);
+		buffer.writeDouble(posX);
+		buffer.writeDouble(posY);
+		buffer.writeDouble(posZ);
 	}
 
 	@Override
@@ -49,6 +48,7 @@ public class Tracker extends Entity implements IEntityAdditionalSpawnData {
 			wrapper.setTracker(this);
 		}
 		Print.debug("[0] Linked Tracker for " + entity);
+		setPosition(buffer.readDouble(), buffer.readDouble(), buffer.readDouble());
 	}
 
 	@Override
@@ -94,19 +94,18 @@ public class Tracker extends Entity implements IEntityAdditionalSpawnData {
 	
     @Override
     public boolean processInitialInteract(EntityPlayer player, EnumHand hand){
-        if(isDead || world.isRemote || hand == EnumHand.OFF_HAND || entity == null) return false;
-        ItemStack stack = player.getHeldItem(hand);
-        Print.debug(stack);
-        if(!stack.isEmpty() && (stack.getItem() instanceof ContainerItem || stack.getItem() instanceof ItemTool)){
-        	entity.getCapability(Capabilities.CONTAINER, null).openGUI(player);
-        	return true;
-        }
+    	this.canBeCollidedWith();
         return false;
     }
     
     @Override
     public void setDead(){
     	super.setDead();
+    }
+
+    @Override
+    public boolean canBeCollidedWith(){
+        return false;
     }
 
 }
