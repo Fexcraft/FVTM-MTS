@@ -54,8 +54,8 @@ public class RenderTracker extends Render<Tracker> implements IRenderFactory<Tra
 		}*/
 		Point3d pos = tracker.wrapper.ent.prevPosition.getInterpolatedPoint(tracker.wrapper.ent.position, ticks);
 		Point3d rot = tracker.wrapper.ent.prevAngles.getInterpolatedPoint(tracker.wrapper.ent.angles, ticks);
-		cap.render(pos.x, pos.y, pos.z, rot.y - 90, rot.x, rot.z);
-		Print.debug(pos.x, pos.y, pos.z);
+        GL11.glTranslated(pos.x, pos.y, pos.z);
+		cap.render(/*pos.x, pos.y, pos.z,*/ 0, 0, 0, rot.y + 90, rot.x, -rot.z);
 		GL11.glPopMatrix();
     }
     
