@@ -72,8 +72,8 @@ public class CompatEvents {
 		ContainerHolder holder = wrapper.getCapability();
 		byte length = (byte) part.size;
 		String slotid = "container_" + found;
-		Vec3d pos = new Vec3d(part.position.x, part.position.y, part.position.z);
-		ContainerSlot slot = new ContainerSlot(slotid, length, pos.add(.375, 0, -.375), 0, null, null);
+		Vec3d pos = new Vec3d(part.localOffset.x, part.localOffset.y, part.localOffset.z);
+		ContainerSlot slot = new ContainerSlot(slotid, length, pos.add(-.375, 0, -.375), 0, null, null);
 		slot.setContainer(0, new ContainerData(Resources.CONTAINERS.getValue(new ResourceLocation("hcp:medium"))));
 		holder.addContainerSlot(slot);
 		Print.log("Included ContainerSlot(" + length + ") into " + wrapper);
@@ -86,8 +86,12 @@ public class CompatEvents {
 	}
 
 	public static void add(ContainerPart part, AEntityF_Multipart<?> entity){
-		// TODO Auto-generated method stub
-		
+		for(BEEWrapper ent : bee_wrappers.values()){
+			if(ent.ent == entity){
+				part.con_entity = ent.getEntity();
+				break;
+			}
+		}
 	}
 
 	public static BEEWrapper getWrapper(BuilderEntityExisting entity){
