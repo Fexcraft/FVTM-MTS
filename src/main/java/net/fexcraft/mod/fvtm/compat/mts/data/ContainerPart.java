@@ -25,7 +25,7 @@ public class ContainerPart extends APart {
 	public ContainerPart(AEntityF_Multipart<?> entityOn, WrapperPlayer player, JSONPartDefinition placementDefinition, WrapperNBT data, APart parentPart){
 		super(entityOn, player, placementDefinition, data, parentPart);
 		size = data.getInteger("fvtm_mts_size");
-		CompatEvents.add(entityOn);
+		CompatEvents.add(entityOn, true);
 	}
 	
 	@Override
