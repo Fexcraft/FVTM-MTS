@@ -1,5 +1,8 @@
 package net.fexcraft.mod.fvtm.compat.mts;
 
+import java.lang.reflect.Field;
+import java.util.Map;
+import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
@@ -15,6 +18,7 @@ import net.fexcraft.mod.fvtm.data.container.ContainerHolder;
 import net.fexcraft.mod.fvtm.data.container.ContainerSlot;
 import net.fexcraft.mod.fvtm.util.Resources;
 import net.fexcraft.mod.fvtm.util.caps.ContainerHolderUtil;
+import net.fexcraft.mod.fvtm.util.caps.ContainerHolderUtil.Implementation;
 import net.fexcraft.mod.fvtm.util.caps.RenderCacheHandler;
 import net.minecraft.entity.Entity;
 import net.minecraft.util.ResourceLocation;
@@ -70,6 +74,8 @@ public class CompatEvents {
 
 	private boolean includeContainer(BEEWrapper wrapper, ContainerPart part, int found){
 		ContainerHolder holder = wrapper.getCapability();
+		ContainerHolderUtil.Implementation impl = (Implementation)holder;
+		if(impl.setup) impl.setup = false;
 		byte length = (byte) part.size;
 		String slotid = "container_" + found;
 		Vec3d pos = new Vec3d(part.localOffset.x, part.localOffset.y, part.localOffset.z);
@@ -82,14 +88,15 @@ public class CompatEvents {
 			wrapper.setTracker(new Tracker(wrapper));
 			wrapper.getEntity().world.spawnEntity(wrapper.getTracker());
 		}
+		impl.setup = true;
 		return true;
 	}
 
-	public static void add(ContainerPart part, AEntityF_Multipart<?> entity){
-		for(BEEWrapper ent : bee_wrappers.values()){
-			if(ent.ent == entity){
-				part.con_entity = ent.getEntity();
-				break;
+	public static void add(AEntityF_Multipart<?> entity){
+		for(Entry<Entity, WrapperEntity> entry : getWrapperEntities().entrySet()){
+			if(entry.getValue().getBaseEntity() == entity){
+				Print.debug("found " + entry.getKey());
+				tracked.add((BuilderEntityExisting)entry.getKey());
 			}
 		}
 	}
@@ -100,6 +107,30 @@ public class CompatEvents {
 			bee_wrappers.put(entity, new BEEWrapper(entity, (EntityVehicleF_Physics)ent.getBaseEntity()));
 		}
 		return bee_wrappers.get(entity);
+	}
+	
+	private static Field entfield;
+	private static boolean entfailed = false;
+	
+	public static Map<Entity, WrapperEntity> getWrapperEntities(){
+		if(entfield == null && !entfailed){
+			try{
+				entfield = WrapperEntity.class.getDeclaredField("entityWrappers");
+				entfield.setAccessible(true);
+			}
+			catch(Exception e){
+				Print.log("Failed to get field. [ENTFIELD:ERR:0]");
+				e.printStackTrace();
+				entfailed = true;
+			}
+		}
+		try{
+			return (Map<Entity, WrapperEntity>)entfield.get(null);
+		}
+		catch(IllegalArgumentException | IllegalAccessException e){
+			e.printStackTrace();
+			return null;
+		}
 	}
 
 }
