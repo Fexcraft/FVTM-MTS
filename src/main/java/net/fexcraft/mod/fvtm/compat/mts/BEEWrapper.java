@@ -27,6 +27,7 @@ public class BEEWrapper implements ContainerHolderWrapper {
 		if(slot == null) return new Vec3d(0, 0, 0);
 		Point3d point = new Point3d(slot.position.x, slot.position.y, slot.position.z);
 		point.rotateFine(ent.angles);
+		point.rotateY(capability.getContainerSlot(slotid).rotation);
 		point.add(ent.position);
 		return new Vec3d(point.x, point.y, point.z);
 	}
@@ -38,6 +39,7 @@ public class BEEWrapper implements ContainerHolderWrapper {
         float off = index + (type.length() / 2f) - (slot.length / 2f);
 		Point3d point = new Point3d(slot.position.x - off, slot.position.y, slot.position.z);
 		point.rotateFine(ent.angles);
+		point.rotateY(capability.getContainerSlot(slotid).rotation);
 		point.add(ent.position);
 		return new Vec3d(point.x, point.y, point.z);
 	}
