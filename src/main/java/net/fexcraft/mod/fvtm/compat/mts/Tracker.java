@@ -5,6 +5,7 @@ import minecrafttransportsimulator.entities.instances.EntityVehicleF_Physics;
 import minecrafttransportsimulator.mcinterface.BuilderEntityExisting;
 import minecrafttransportsimulator.mcinterface.WrapperEntity;
 import net.fexcraft.lib.mc.utils.Print;
+import net.fexcraft.lib.mc.utils.Static;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.nbt.NBTTagCompound;
@@ -72,6 +73,7 @@ public class Tracker extends Entity implements IEntityAdditionalSpawnData {
 			if(wrapper == null || entityid == -1){
 				this.setDead();
 				Print.debug("Removing invalid Tracker - " + wrapper + " " + entity + " " + entityid);
+				Static.exception(null, false);
 				return;
 			}
 			if(entity != null && entity.isDead) this.setDead();
