@@ -13,10 +13,8 @@ import minecrafttransportsimulator.mcinterface.BuilderEntityExisting;
 import minecrafttransportsimulator.mcinterface.WrapperEntity;
 import net.fexcraft.lib.mc.utils.Print;
 import net.fexcraft.mod.fvtm.compat.mts.data.ContainerPart;
-import net.fexcraft.mod.fvtm.data.container.ContainerData;
 import net.fexcraft.mod.fvtm.data.container.ContainerHolder;
 import net.fexcraft.mod.fvtm.data.container.ContainerSlot;
-import net.fexcraft.mod.fvtm.util.Resources;
 import net.fexcraft.mod.fvtm.util.caps.ContainerHolderUtil;
 import net.fexcraft.mod.fvtm.util.caps.ContainerHolderUtil.Implementation;
 import net.fexcraft.mod.fvtm.util.caps.RenderCacheHandler;
@@ -29,10 +27,11 @@ import net.minecraftforge.fml.common.gameevent.TickEvent.Phase;
 import net.minecraftforge.fml.common.gameevent.TickEvent.WorldTickEvent;
 
 public class CompatEvents {
-	
-	public static ConcurrentLinkedQueue<BuilderEntityExisting> tracked = new ConcurrentLinkedQueue<>();
-	public static ConcurrentHashMap<BuilderEntityExisting, BEEWrapper> bee_wrappers = new ConcurrentHashMap<>();
+
 	//we'll track them till we're sure
+	public static ConcurrentLinkedQueue<BuilderEntityExisting> tracked = new ConcurrentLinkedQueue<>();
+	public static ConcurrentLinkedQueue<EntityVehicleF_Physics> cotracked = new ConcurrentLinkedQueue<>();
+	public static ConcurrentHashMap<BuilderEntityExisting, BEEWrapper> bee_wrappers = new ConcurrentHashMap<>();
 	
 	public CompatEvents(){}
 	
@@ -70,6 +69,9 @@ public class CompatEvents {
 			}
 			return false;
 		});
+		cotracked.removeIf(entity -> {
+			return add(entity, false);
+		});
 	}
 
 	private boolean includeContainer(BEEWrapper wrapper, ContainerPart part, int found){
@@ -79,8 +81,8 @@ public class CompatEvents {
 		byte length = (byte) part.size;
 		String slotid = "container_" + found;
 		Vec3d pos = new Vec3d(part.localOffset.x, part.localOffset.y, part.localOffset.z);
-		ContainerSlot slot = new ContainerSlot(slotid, length, pos.add(-.375, 0, -.375), 0, null, null);
-		slot.setContainer(0, new ContainerData(Resources.CONTAINERS.getValue(new ResourceLocation("hcp:medium"))));
+		ContainerSlot slot = new ContainerSlot(slotid, length, pos, 90, null, null);
+		//slot.setContainer(0, new ContainerData(Resources.CONTAINERS.getValue(new ResourceLocation("hcp:medium"))));
 		holder.addContainerSlot(slot);
 		Print.log("Included ContainerSlot(" + length + ") into " + wrapper);
 		holder.sync(wrapper.getEntity().world.isRemote);
@@ -92,13 +94,16 @@ public class CompatEvents {
 		return true;
 	}
 
-	public static void add(AEntityF_Multipart<?> entity){
+	public static boolean add(AEntityF_Multipart<?> entity, boolean add){
 		for(Entry<Entity, WrapperEntity> entry : getWrapperEntities().entrySet()){
 			if(entry.getValue().getBaseEntity() == entity){
 				Print.debug("found " + entry.getKey());
 				tracked.add((BuilderEntityExisting)entry.getKey());
+				return true;
 			}
 		}
+		if(add) cotracked.add((EntityVehicleF_Physics)entity);
+		return false;
 	}
 
 	public static BEEWrapper getWrapper(BuilderEntityExisting entity){
