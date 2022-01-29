@@ -85,6 +85,7 @@ public class CompatEvents {
 		//slot.setContainer(0, new ContainerData(Resources.CONTAINERS.getValue(new ResourceLocation("hcp:medium"))));
 		holder.addContainerSlot(slot);
 		Print.log("Included ContainerSlot(" + length + ") into " + wrapper);
+		holder.setWrapper(wrapper);
 		holder.sync(wrapper.getEntity().world.isRemote);
 		if(!wrapper.getEntity().world.isRemote && wrapper.getTracker() == null){
 			wrapper.setTracker(new Tracker(wrapper));
