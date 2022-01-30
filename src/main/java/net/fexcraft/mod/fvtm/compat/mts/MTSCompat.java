@@ -15,7 +15,7 @@ import net.minecraftforge.fml.common.event.FMLInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
 import net.minecraftforge.fml.common.registry.EntityRegistry;
 
-@Mod(modid = MTSCompat.MODID, name = MTSCompat.NAME, version = MTSCompat.VERSION, dependencies = "required-after:fcl;required-after:fvtm")
+@Mod(modid = MTSCompat.MODID, name = MTSCompat.NAME, version = MTSCompat.VERSION, dependencies = "required-after:fcl;required-after:fvtm;required-after:mts")
 public class MTSCompat {
 	
     public static final String MODID = "fvtm_mts";
