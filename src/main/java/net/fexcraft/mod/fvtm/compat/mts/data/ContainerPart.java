@@ -5,7 +5,7 @@ import java.lang.reflect.Field;
 import minecrafttransportsimulator.entities.components.AEntityF_Multipart;
 import minecrafttransportsimulator.entities.instances.APart;
 import minecrafttransportsimulator.jsondefs.JSONPartDefinition;
-import minecrafttransportsimulator.mcinterface.BuilderEntityExisting;
+import minecrafttransportsimulator.mcinterface.InterfaceInterface;
 import minecrafttransportsimulator.mcinterface.WrapperEntity;
 import minecrafttransportsimulator.mcinterface.WrapperNBT;
 import minecrafttransportsimulator.mcinterface.WrapperPlayer;
@@ -17,15 +17,11 @@ import net.fexcraft.mod.fvtm.data.container.ContainerHolder;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
 
-public class ContainerPart extends APart {
-
-	public BuilderEntityExisting con_entity;
-	public int size;
+public abstract class ContainerPart extends APart {
 
 	public ContainerPart(AEntityF_Multipart<?> entityOn, WrapperPlayer player, JSONPartDefinition placementDefinition, WrapperNBT data, APart parentPart){
 		super(entityOn, player, placementDefinition, data, parentPart);
-		size = data.getInteger("fvtm_mts_size");
-		CompatEvents.add(entityOn, true);
+		CompatEvents.cotracked.add(entityOn);
 	}
 	
 	@Override
@@ -40,7 +36,8 @@ public class ContainerPart extends APart {
 	
 	@Override
 	public boolean interact(WrapperPlayer player){
-		ContainerHolder holder = con_entity.getCapability(Capabilities.CONTAINER, null);
+		Entity entity = InterfaceInterface.toExternal(entityOn);
+		ContainerHolder holder = entity.getCapability(Capabilities.CONTAINER, null);
 		if(holder == null){
 			Print.chat(getEntity(player), "Container Holder is Null, this seems to be an error.");
 			return true;
@@ -48,6 +45,12 @@ public class ContainerPart extends APart {
 		holder.openGUI((EntityPlayer)getEntity(player));
 		return true;
 	}
+	
+	/*@Override
+	public WrapperNBT save(WrapperNBT data){
+		super.save(data);
+		return data;
+	}*/
 	
 	private static Field entfield;
 	private static boolean entfailed = false;
@@ -71,6 +74,34 @@ public class ContainerPart extends APart {
 			e.printStackTrace();
 			return null;
 		}
+	}
+	
+	public abstract int size();
+	
+	public static class Single extends ContainerPart {
+
+		public Single(AEntityF_Multipart<?> entityOn, WrapperPlayer player, JSONPartDefinition placementDefinition, WrapperNBT data, APart parentPart){
+			super(entityOn, player, placementDefinition, data, parentPart);
+		}
+
+		@Override
+		public int size(){
+			return 6;
+		}
+		
+	}
+	
+	public static class Double extends ContainerPart {
+
+		public Double(AEntityF_Multipart<?> entityOn, WrapperPlayer player, JSONPartDefinition placementDefinition, WrapperNBT data, APart parentPart){
+			super(entityOn, player, placementDefinition, data, parentPart);
+		}
+
+		@Override
+		public int size(){
+			return 12;
+		}
+		
 	}
 
 }

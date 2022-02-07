@@ -3,7 +3,7 @@ package net.fexcraft.mod.fvtm.compat.mts;
 import io.netty.buffer.ByteBuf;
 import minecrafttransportsimulator.entities.instances.EntityVehicleF_Physics;
 import minecrafttransportsimulator.mcinterface.BuilderEntityExisting;
-import minecrafttransportsimulator.mcinterface.WrapperEntity;
+import minecrafttransportsimulator.mcinterface.InterfaceInterface;
 import net.fexcraft.lib.mc.utils.Print;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
@@ -86,8 +86,7 @@ public class Tracker extends Entity implements IEntityAdditionalSpawnData {
 		}
 		if(entity == null) return;
 		if(wrapper != null && wrapper.ent == null){
-			WrapperEntity we = WrapperEntity.getWrapperFor(entity);
-			wrapper.ent = (EntityVehicleF_Physics)we.getBaseEntity();
+			wrapper.ent = (EntityVehicleF_Physics)InterfaceInterface.toInternal(entity);
 		}
 		this.setPosition(entity.posX, entity.posY, entity.posZ);
 	}
