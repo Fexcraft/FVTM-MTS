@@ -2,6 +2,7 @@ package net.fexcraft.mod.fvtm.compat.mts;
 
 import minecrafttransportsimulator.systems.PackParserSystem;
 import net.fexcraft.lib.mc.registry.FCLRegistry;
+import net.fexcraft.mod.fvtm.InternalAddon;
 import net.fexcraft.mod.fvtm.compat.mts.data.ContainerItem;
 import net.fexcraft.mod.fvtm.compat.mts.data.ContainerJsonPart;
 import net.fexcraft.mod.fvtm.compat.mts.data.ContainerPartItem;
@@ -45,6 +46,9 @@ public class MTSCompat {
 
     @EventHandler
     public void init(FMLInitializationEvent event){
-        //
+    	if(event.getSide().isClient()){
+            CON_SINGLE.setCreativeTab(InternalAddon.INSTANCE.getDefaultCreativeTab());
+            CON_DOUBLE.setCreativeTab(InternalAddon.INSTANCE.getDefaultCreativeTab());
+    	}
     }
 }
