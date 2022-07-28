@@ -93,7 +93,6 @@ public class Tracker extends Entity implements IEntityAdditionalSpawnData {
 	
     @Override
     public boolean processInitialInteract(EntityPlayer player, EnumHand hand){
-    	this.canBeCollidedWith();
         return false;
     }
     
