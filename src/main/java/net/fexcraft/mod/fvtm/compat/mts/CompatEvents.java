@@ -1,6 +1,7 @@
 package net.fexcraft.mod.fvtm.compat.mts;
 
 import java.lang.reflect.Field;
+import java.util.ArrayList;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
@@ -33,6 +34,8 @@ public class CompatEvents {
 	public static ConcurrentLinkedQueue<BuilderEntityExisting> tracked = new ConcurrentLinkedQueue<>();
 	public static ConcurrentLinkedQueue<AEntityF_Multipart<?>> cotracked = new ConcurrentLinkedQueue<>();
 	public static ConcurrentHashMap<BuilderEntityExisting, BEEWrapper> bee_wrappers = new ConcurrentHashMap<>();
+	private static final ArrayList<BuilderEntityExisting> torem = new ArrayList<>();
+	private static final ArrayList<AEntityF_Multipart<?>> cotorem = new ArrayList<>();
 	
 	public CompatEvents(){}
 	
@@ -40,8 +43,8 @@ public class CompatEvents {
 	public void onAttachEntityCapabilities(AttachCapabilitiesEvent<Entity> event){
 		if(event.getObject().world == null) return;
 		if(event.getObject() instanceof BuilderEntityExisting){
-			tracked.add((BuilderEntityExisting)event.getObject());
 			event.addCapability(new ResourceLocation("fvtm:container"), new ContainerHolderUtil(event.getObject()));
+			if(!event.getObject().world.isRemote) tracked.add((BuilderEntityExisting)event.getObject());
 			if(event.getObject().world.isRemote){
 				event.addCapability(new ResourceLocation("fvtm:rendercache"), new RenderCacheHandler());
 			}
@@ -51,31 +54,49 @@ public class CompatEvents {
 	@SubscribeEvent
 	public void worldTick(WorldTickEvent event){
 		if(event.phase == Phase.START || event.world.isRemote) return;
-		tracked.removeIf(entity -> {
-			AEntityB_Existing ent = InterfaceInterface.toInternal(entity);
-			if(ent != null && ent instanceof EntityVehicleF_Physics){
-				EntityVehicleF_Physics entf = (EntityVehicleF_Physics)ent;
-				if(bee_wrappers.contains(entity)) return true;
-				BEEWrapper wrapper = new BEEWrapper(entity, (EntityVehicleF_Physics)InterfaceInterface.toInternal(entity));
-				bee_wrappers.put(entity, wrapper);
-				int found = 0;
-				for(APart part : entf.parts){
-					if(part instanceof ContainerPart){
-						if(includeContainer(wrapper, (ContainerPart)part, found)) found++;
-					}
+		if(tracked.size() > 0){
+			Print.debug(tracked);
+			Print.debug(cotracked);
+			for(BuilderEntityExisting entity : tracked){
+				if(entity.isDead || bee_wrappers.containsKey(entity)){
+					torem.add(entity);
+					continue;
 				}
-				return true;
+				AEntityB_Existing ent = InterfaceInterface.toInternal(entity);
+				if(ent != null){
+					if(ent instanceof EntityVehicleF_Physics == false){
+						torem.add(entity);
+						continue;
+					}
+					EntityVehicleF_Physics entf = (EntityVehicleF_Physics)ent;
+					BEEWrapper wrapper = new BEEWrapper(entity, (EntityVehicleF_Physics)InterfaceInterface.toInternal(entity));
+					bee_wrappers.put(entity, wrapper);
+					int found = 0;
+					for(APart part : entf.parts){
+						if(part instanceof ContainerPart){
+							if(includeContainer(wrapper, (ContainerPart)part, found)) found++;
+						}
+					}
+					torem.add(entity);
+				}
 			}
-			return false;
-		});
-		cotracked.removeIf(entity -> {
-			BuilderEntityExisting ent = InterfaceInterface.toExternal(entity);
-			if(ent != null){
-				tracked.add(ent);
-				return true;
+			Print.debug(torem);
+			Print.debug(bee_wrappers);
+			Print.debug("=====");
+			tracked.removeAll(torem);
+			torem.clear();
+		}
+		if(cotracked.size() > 0){
+			for(AEntityF_Multipart<?> entity : cotracked){
+				BuilderEntityExisting ent = InterfaceInterface.toExternal(entity);
+				if(ent != null){
+					tracked.add(ent);
+					cotorem.add(entity);
+				}
 			}
-			return false;
-		});
+			cotracked.removeAll(cotorem);
+			cotorem.clear();
+		}
 	}
 
 	private boolean includeContainer(BEEWrapper wrapper, ContainerPart part, int found){
@@ -88,20 +109,20 @@ public class CompatEvents {
 		ContainerSlot slot = new ContainerSlot(slotid, length, pos, 90, null, null);
 		//slot.setContainer(0, new ContainerData(Resources.CONTAINERS.getValue(new ResourceLocation("hcp:medium"))));
 		holder.addContainerSlot(slot);
-		Print.log("Included ContainerSlot(" + length + ") into " + wrapper.getEntity());
+		Print.log("Included ContainerSlot(" + length + "/" + slotid + ") into " + wrapper.getEntity());
 		holder.setWrapper(wrapper);
-		holder.sync(wrapper.getEntity().world.isRemote);
 		Print.debug(wrapper.getEntity().world.isRemote, wrapper.getTracker());
 		if(wrapper.getTracker() == null){
 			wrapper.setTracker(new Tracker(wrapper));
 			wrapper.getEntity().world.spawnEntity(wrapper.getTracker());
 		}
+		holder.sync(false);
 		impl.setup = true;
 		return true;
 	}
 
 	public static BEEWrapper getWrapper(BuilderEntityExisting entity){
-		if(!bee_wrappers.contains(entity)){
+		if(!bee_wrappers.containsKey(entity)){
 			bee_wrappers.put(entity, new BEEWrapper(entity, (EntityVehicleF_Physics)InterfaceInterface.toInternal(entity)));
 		}
 		return bee_wrappers.get(entity);
