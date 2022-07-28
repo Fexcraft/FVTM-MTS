@@ -89,6 +89,7 @@ public class Tracker extends Entity implements IEntityAdditionalSpawnData {
 			wrapper.ent = (EntityVehicleF_Physics)InterfaceInterface.toInternal(entity);
 		}
 		this.setPosition(entity.posX, entity.posY, entity.posZ);
+		if(entity.isDead) setDead();
 	}
 	
     @Override
