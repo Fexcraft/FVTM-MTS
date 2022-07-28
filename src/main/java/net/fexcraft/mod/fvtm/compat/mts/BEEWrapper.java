@@ -21,6 +21,7 @@ public class BEEWrapper implements ContainerHolderWrapper {
 	public BEEWrapper(BuilderEntityExisting entity, EntityVehicleF_Physics ent){
 		this.entity = entity;
 		this.ent = ent;
+		axes = new Axes();
 	}
 
 	@Override
@@ -28,7 +29,7 @@ public class BEEWrapper implements ContainerHolderWrapper {
 		ContainerSlot slot = capability.getContainerSlot(slotid);
 		if(slot == null) return new Vec3d(0, 0, 0);
 		Vec3f vec = new Vec3f(slot.position.x, slot.position.y, slot.position.z);
-		axes.set_rotation(ent.rotation.angles.x, ent.rotation.angles.y + capability.getContainerSlot(slotid).rotation, ent.rotation.angles.z, true);
+		axes.set_rotation(ent.orientation.angles.x, ent.orientation.angles.y + slot.rotation, ent.orientation.angles.z, true);
 		vec = axes.get_vector(vec).add((float)ent.position.x, (float)ent.position.y, (float)ent.position.z);
 		return new Vec3d(vec.x, vec.y, vec.z);
 	}
@@ -39,7 +40,7 @@ public class BEEWrapper implements ContainerHolderWrapper {
 		if(slot == null) return new Vec3d(0, 0, 0);
         float off = index + (type.length() / 2f) - (slot.length / 2f);
 		Vec3f vec = new Vec3f(slot.position.x - off, slot.position.y, slot.position.z);
-		axes.set_rotation(ent.rotation.angles.x, ent.rotation.angles.y + capability.getContainerSlot(slotid).rotation, ent.rotation.angles.z, true);
+		axes.set_rotation(ent.orientation.angles.x, ent.orientation.angles.y + slot.rotation, ent.orientation.angles.z, true);
 		vec = axes.get_vector(vec).add((float)ent.position.x, (float)ent.position.y, (float)ent.position.z);
 		return new Vec3d(vec.x, vec.y, vec.z);
 	}
