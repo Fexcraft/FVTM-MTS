@@ -2,14 +2,13 @@ package net.fexcraft.mod.fvtm.compat.mts.data;
 
 import java.lang.reflect.Field;
 
+import mcinterface1122.InterfaceInterface;
+import mcinterface1122.WrapperEntity;
 import minecrafttransportsimulator.entities.components.AEntityF_Multipart;
 import minecrafttransportsimulator.entities.instances.APart;
 import minecrafttransportsimulator.jsondefs.JSONPartDefinition;
-import minecrafttransportsimulator.mcinterface.InterfaceInterface;
-import minecrafttransportsimulator.mcinterface.WrapperEntity;
-import minecrafttransportsimulator.mcinterface.WrapperNBT;
-import minecrafttransportsimulator.mcinterface.WrapperPlayer;
-import minecrafttransportsimulator.rendering.instances.RenderPart;
+import minecrafttransportsimulator.mcinterface.IWrapperNBT;
+import minecrafttransportsimulator.mcinterface.IWrapperPlayer;
 import net.fexcraft.lib.mc.utils.Print;
 import net.fexcraft.mod.fvtm.compat.mts.CompatEvents;
 import net.fexcraft.mod.fvtm.data.Capabilities;
@@ -19,15 +18,19 @@ import net.minecraft.entity.player.EntityPlayer;
 
 public abstract class ContainerPart extends APart {
 
-	public ContainerPart(AEntityF_Multipart<?> entityOn, WrapperPlayer player, JSONPartDefinition placementDefinition, WrapperNBT data, APart parentPart){
-		super(entityOn, player, placementDefinition, data, parentPart);
+	public ContainerPart(AEntityF_Multipart<?> entityOn, IWrapperPlayer placingPlayer, JSONPartDefinition placementDefinition, IWrapperNBT data, APart parentPart){
+		super(entityOn, placingPlayer, placementDefinition, data, parentPart);
 		CompatEvents.cotracked.add(entityOn);
 	}
 	
-	@Override
+	/*@Override
 	public RenderPart getRenderer(){
 		return new ContainerRenderPart();
-	}
+	}*/
+    @Override
+    public boolean disableRendering(float partialTicks) {
+        return true;
+    }
 	
 	@Override
 	public void remove(){
@@ -35,7 +38,7 @@ public abstract class ContainerPart extends APart {
 	}
 	
 	@Override
-	public boolean interact(WrapperPlayer player){
+	public boolean interact(IWrapperPlayer player){
 		Entity entity = InterfaceInterface.toExternal(entityOn);
 		ContainerHolder holder = entity.getCapability(Capabilities.CONTAINER, null);
 		if(holder == null){
@@ -55,7 +58,7 @@ public abstract class ContainerPart extends APart {
 	private static Field entfield;
 	private static boolean entfailed = false;
 	
-	public static Entity getEntity(WrapperEntity ent){
+	public static Entity getEntity(IWrapperPlayer player){
 		if(entfield == null && !entfailed){
 			try{
 				entfield = WrapperEntity.class.getDeclaredField("entity");
@@ -68,7 +71,7 @@ public abstract class ContainerPart extends APart {
 			}
 		}
 		try{
-			return (Entity)entfield.get(ent);
+			return (Entity)entfield.get(player);
 		}
 		catch(IllegalArgumentException | IllegalAccessException e){
 			e.printStackTrace();
@@ -80,8 +83,8 @@ public abstract class ContainerPart extends APart {
 	
 	public static class Single extends ContainerPart {
 
-		public Single(AEntityF_Multipart<?> entityOn, WrapperPlayer player, JSONPartDefinition placementDefinition, WrapperNBT data, APart parentPart){
-			super(entityOn, player, placementDefinition, data, parentPart);
+		public Single(AEntityF_Multipart<?> entityOn, IWrapperPlayer placing, JSONPartDefinition placementDefinition, IWrapperNBT data, APart parentPart){
+			super(entityOn, placing, placementDefinition, data, parentPart);
 		}
 
 		@Override
@@ -93,7 +96,7 @@ public abstract class ContainerPart extends APart {
 	
 	public static class Double extends ContainerPart {
 
-		public Double(AEntityF_Multipart<?> entityOn, WrapperPlayer player, JSONPartDefinition placementDefinition, WrapperNBT data, APart parentPart){
+		public Double(AEntityF_Multipart<?> entityOn, IWrapperPlayer player, JSONPartDefinition placementDefinition, IWrapperNBT data, APart parentPart){
 			super(entityOn, player, placementDefinition, data, parentPart);
 		}
 

@@ -2,7 +2,7 @@ package net.fexcraft.mod.fvtm.compat.mts;
 
 import org.lwjgl.opengl.GL11;
 
-import minecrafttransportsimulator.baseclasses.Point3d;
+import minecrafttransportsimulator.baseclasses.Point3D;
 import net.fexcraft.lib.common.math.Vec3f;
 import net.fexcraft.lib.mc.utils.Print;
 import net.fexcraft.mod.fvtm.data.container.ContainerHolder;
@@ -47,8 +47,8 @@ public class RenderTracker extends Render<Tracker> implements IRenderFactory<Tra
         GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
         if(Command.CONTAINER){
     		for(ContainerSlot slot : cap.getContainerSlots()){
-    			Point3d point = new Point3d(slot.position.x, slot.position.y, slot.position.z);
-    			point.rotateFine(tracker.wrapper.ent.angles);
+    			Point3D point = new Point3D(slot.position.x, slot.position.y, slot.position.z);
+    			point.rotate(tracker.wrapper.ent.rotation);
     			point.add(tracker.wrapper.ent.position);//.add(.375, 0, .375);
     			GL11.glPushMatrix();
     			GL11.glTranslated(point.x, point.y, point.z);
@@ -58,8 +58,8 @@ public class RenderTracker extends Render<Tracker> implements IRenderFactory<Tra
     			GL11.glPopMatrix();
     		}
         }
-		Point3d pos = tracker.wrapper.ent.prevPosition.getInterpolatedPoint(tracker.wrapper.ent.position, ticks);
-		Point3d rot = tracker.wrapper.ent.prevAngles.getInterpolatedPoint(tracker.wrapper.ent.angles, ticks);
+		Point3D pos = tracker.wrapper.ent.prevPosition.getInterpolatedPoint(tracker.wrapper.ent.position, ticks);
+		Point3D rot = tracker.wrapper.ent.prevOrientation.getInterpolatedPoint(tracker.wrapper.ent.rotation, ticks);
 		//cap.render(pos.x, pos.y, pos.z, rot.y, rot.x, -rot.z);
 		GL11.glTranslated(pos.x, pos.y, pos.z);
 		EffectRenderer.renderContainerInfo(tracker.world, tracker.wrapper, cap, new Vec3f(rot.y, rot.x, -rot.z));

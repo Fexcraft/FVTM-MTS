@@ -1,6 +1,6 @@
 package net.fexcraft.mod.fvtm.compat.mts;
 
-import minecrafttransportsimulator.systems.PackParserSystem;
+import minecrafttransportsimulator.packloading.PackParser;
 import net.fexcraft.lib.mc.registry.FCLRegistry;
 import net.fexcraft.mod.fvtm.InternalAddon;
 import net.fexcraft.mod.fvtm.compat.mts.data.ContainerItem;
@@ -32,9 +32,9 @@ public class MTSCompat {
 
     @EventHandler
     public void preInit(FMLPreInitializationEvent event){
-    	PackParserSystem.addItemPartCreator(new ContainerPartItemCreator());
-    	PackParserSystem.registerItem(CON_PART_SINGLE);
-    	PackParserSystem.registerItem(CON_PART_DOUBLE);
+    	PackParser.addItemPartCreator(new ContainerPartItemCreator());
+    	PackParser.registerItem(CON_PART_SINGLE);
+    	PackParser.registerItem(CON_PART_DOUBLE);
     	FCLRegistry.newAutoRegistry(MODID).addItem("container_single", CON_SINGLE = new ContainerItem(CON_ITEM_SINGLE), 0, null);
     	FCLRegistry.getAutoRegistry(MODID).addItem("container_double", CON_DOUBLE = new ContainerItem(CON_ITEM_DOUBLE), 0, null);
         MinecraftForge.EVENT_BUS.register(new CompatEvents());

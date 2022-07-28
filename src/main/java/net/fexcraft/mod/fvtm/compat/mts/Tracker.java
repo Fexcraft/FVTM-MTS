@@ -1,9 +1,9 @@
 package net.fexcraft.mod.fvtm.compat.mts;
 
 import io.netty.buffer.ByteBuf;
+import mcinterface1122.BuilderEntityExisting;
+import mcinterface1122.InterfaceInterface;
 import minecrafttransportsimulator.entities.instances.EntityVehicleF_Physics;
-import minecrafttransportsimulator.mcinterface.BuilderEntityExisting;
-import minecrafttransportsimulator.mcinterface.InterfaceInterface;
 import net.fexcraft.lib.mc.utils.Print;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;

@@ -1,7 +1,7 @@
 package net.fexcraft.mod.fvtm.compat.mts.data;
 
+import mcinterface1122.IBuilderItemInterface;
 import minecrafttransportsimulator.items.components.AItemBase;
-import minecrafttransportsimulator.mcinterface.IBuilderItemInterface;
 import net.minecraft.item.Item;
 
 public class ContainerItem extends Item implements IBuilderItemInterface {

@@ -1,11 +1,6 @@
 package net.fexcraft.mod.fvtm.compat.mts.data;
 
-import minecrafttransportsimulator.baseclasses.Point3d;
-import minecrafttransportsimulator.entities.instances.APart;
-import minecrafttransportsimulator.mcinterface.InterfaceClient;
-import minecrafttransportsimulator.rendering.instances.RenderPart;
-
-public class ContainerRenderPart extends RenderPart {
+public class ContainerRenderPart {}/*extends RenderPart {
 	
 	@Override
 	public boolean disableRendering(APart part, float partialTicks){
@@ -29,4 +24,4 @@ public class ContainerRenderPart extends RenderPart {
 		//
 	}
 
-}
+}*/
