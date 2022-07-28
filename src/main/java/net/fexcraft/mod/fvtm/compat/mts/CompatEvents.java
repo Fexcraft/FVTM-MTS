@@ -55,7 +55,9 @@ public class CompatEvents {
 			AEntityB_Existing ent = InterfaceInterface.toInternal(entity);
 			if(ent != null && ent instanceof EntityVehicleF_Physics){
 				EntityVehicleF_Physics entf = (EntityVehicleF_Physics)ent;
-				BEEWrapper wrapper = getWrapper(entity);
+				if(bee_wrappers.contains(entity)) return true;
+				BEEWrapper wrapper = new BEEWrapper(entity, (EntityVehicleF_Physics)InterfaceInterface.toInternal(entity));
+				bee_wrappers.put(entity, wrapper);
 				int found = 0;
 				for(APart part : entf.parts){
 					if(part instanceof ContainerPart){
