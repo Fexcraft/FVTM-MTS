@@ -4,6 +4,7 @@ import java.lang.reflect.Field;
 
 import mcinterface1122.InterfaceInterface;
 import mcinterface1122.WrapperEntity;
+import minecrafttransportsimulator.baseclasses.TransformationMatrix;
 import minecrafttransportsimulator.entities.components.AEntityF_Multipart;
 import minecrafttransportsimulator.entities.instances.APart;
 import minecrafttransportsimulator.jsondefs.JSONPartDefinition;
@@ -23,10 +24,11 @@ public abstract class ContainerPart extends APart {
 		CompatEvents.cotracked.add(entityOn);
 	}
 	
-	/*@Override
-	public RenderPart getRenderer(){
-		return new ContainerRenderPart();
-	}*/
+    @Override
+    protected void renderModel(TransformationMatrix transform, boolean blendingEnabled, float partialTicks) {
+    	//
+    }
+	
     @Override
     public boolean disableRendering(float partialTicks) {
         return true;
