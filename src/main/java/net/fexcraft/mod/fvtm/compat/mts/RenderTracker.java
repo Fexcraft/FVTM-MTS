@@ -59,7 +59,7 @@ public class RenderTracker extends Render<Tracker> implements IRenderFactory<Tra
     		}
         }
 		Point3D pos = tracker.wrapper.ent.prevPosition.interpolate(tracker.wrapper.ent.position, ticks);
-		Point3D rot = tracker.wrapper.ent.prevOrientation.angles.interpolate(tracker.wrapper.ent.rotation.angles, ticks);
+		Point3D rot = tracker.wrapper.ent.prevOrientation.angles.interpolate(tracker.wrapper.ent.orientation.angles, ticks);
 		//cap.render(pos.x, pos.y, pos.z, rot.y, rot.x, -rot.z);
 		GL11.glTranslated(pos.x, pos.y, pos.z);
 		EffectRenderer.renderContainerInfo(tracker.world, tracker.wrapper, cap, new Vec3f(rot.y, rot.x, -rot.z));
