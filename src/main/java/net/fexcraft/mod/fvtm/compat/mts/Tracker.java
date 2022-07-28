@@ -5,6 +5,8 @@ import mcinterface1122.BuilderEntityExisting;
 import mcinterface1122.InterfaceInterface;
 import minecrafttransportsimulator.entities.instances.EntityVehicleF_Physics;
 import net.fexcraft.lib.mc.utils.Print;
+import net.fexcraft.mod.fvtm.data.Capabilities;
+import net.fexcraft.mod.fvtm.data.container.ContainerHolder;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.nbt.NBTTagCompound;
@@ -42,13 +44,17 @@ public class Tracker extends Entity implements IEntityAdditionalSpawnData {
 	public void readSpawnData(ByteBuf buffer){
 		entityid = buffer.readInt();
 		Entity ent = world.getEntityByID(entityid);
-		if(ent != null){
-			entity = (BuilderEntityExisting)ent;
-			wrapper = CompatEvents.getWrapper(entity);
-			wrapper.setTracker(this);
-		}
+		if(ent != null) link(ent);
 		Print.debug("[0] Linked Tracker for " + entity);
 		setPosition(buffer.readDouble(), buffer.readDouble(), buffer.readDouble());
+	}
+
+	private void link(Entity ent){
+		entity = (BuilderEntityExisting)ent;
+		wrapper = CompatEvents.getWrapper(entity);
+		wrapper.setTracker(this);
+		ContainerHolder holder = entity.getCapability(Capabilities.CONTAINER, null);
+		if(holder != null) holder.sync(world.isRemote);
 	}
 
 	@Override
@@ -78,10 +84,7 @@ public class Tracker extends Entity implements IEntityAdditionalSpawnData {
 		}
 		if(entity == null || wrapper == null){
 			Entity ent = world.getEntityByID(entityid);
-			if(ent != null){
-				entity = (BuilderEntityExisting)ent;
-				wrapper = CompatEvents.getWrapper(entity);
-			}
+			if(ent != null) link(ent);
 			Print.debug("[1] Linked Tracker to " + entity);
 		}
 		if(entity == null) return;
@@ -95,11 +98,6 @@ public class Tracker extends Entity implements IEntityAdditionalSpawnData {
     @Override
     public boolean processInitialInteract(EntityPlayer player, EnumHand hand){
         return false;
-    }
-    
-    @Override
-    public void setDead(){
-    	super.setDead();
     }
 
     @Override
