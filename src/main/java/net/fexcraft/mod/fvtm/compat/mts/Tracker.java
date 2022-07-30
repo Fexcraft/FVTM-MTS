@@ -82,7 +82,7 @@ public class Tracker extends Entity implements IEntityAdditionalSpawnData {
 			}
 			if(entity != null && entity.isDead) this.setDead();
 		}
-		if(entity == null || wrapper == null){
+		if(entity == null || wrapper == null && entityid > -1){
 			Entity ent = world.getEntityByID(entityid);
 			if(ent != null) link(ent);
 			Print.debug("[1] Linked Tracker to " + entity);
