@@ -44,7 +44,7 @@ public class CompatEvents {
 		if(event.getObject().world == null) return;
 		if(event.getObject() instanceof BuilderEntityExisting){
 			event.addCapability(new ResourceLocation("fvtm:container"), new ContainerHolderUtil(event.getObject()));
-			if(!event.getObject().world.isRemote) tracked.add((BuilderEntityExisting)event.getObject());
+			//if(!event.getObject().world.isRemote) tracked.add((BuilderEntityExisting)event.getObject());
 			if(event.getObject().world.isRemote){
 				event.addCapability(new ResourceLocation("fvtm:rendercache"), new RenderCacheHandler());
 			}
@@ -58,7 +58,7 @@ public class CompatEvents {
 			Print.debug(tracked);
 			Print.debug(cotracked);
 			for(BuilderEntityExisting entity : tracked){
-				if(entity.isDead || bee_wrappers.containsKey(entity)){
+				if(entity.isDead){
 					torem.add(entity);
 					continue;
 				}
@@ -69,8 +69,7 @@ public class CompatEvents {
 						continue;
 					}
 					EntityVehicleF_Physics entf = (EntityVehicleF_Physics)ent;
-					BEEWrapper wrapper = new BEEWrapper(entity, (EntityVehicleF_Physics)InterfaceInterface.toInternal(entity));
-					bee_wrappers.put(entity, wrapper);
+					BEEWrapper wrapper = getWrapper(entity);
 					int found = 0;
 					for(APart part : entf.parts){
 						if(part instanceof ContainerPart){
@@ -101,24 +100,32 @@ public class CompatEvents {
 
 	private boolean includeContainer(BEEWrapper wrapper, ContainerPart part, int found){
 		ContainerHolder holder = wrapper.getCapability();
-		ContainerHolderUtil.Implementation impl = (Implementation)holder;
-		if(impl.setup) impl.setup = false;
 		byte length = (byte)part.size();
 		String slotid = "container_" + found;
+		if(holder.getContainerSlot(slotid) != null){
+			Print.log("ContainerSlot(" + length + "/" + slotid + ") present in " + wrapper.getEntity() + ", skipping.");
+			checkTracker(wrapper, holder);
+			return true;
+		}
+		ContainerHolderUtil.Implementation impl = (Implementation)holder;
+		if(impl.setup) impl.setup = false;
 		Vec3d pos = new Vec3d(part.localOffset.x, part.localOffset.y, part.localOffset.z);
 		ContainerSlot slot = new ContainerSlot(slotid, length, pos, 90, null, null);
 		//slot.setContainer(0, new ContainerData(Resources.CONTAINERS.getValue(new ResourceLocation("hcp:medium"))));
 		holder.addContainerSlot(slot);
 		Print.log("Included ContainerSlot(" + length + "/" + slotid + ") into " + wrapper.getEntity());
-		holder.setWrapper(wrapper);
-		Print.debug(wrapper.getEntity().world.isRemote, wrapper.getTracker());
+		checkTracker(wrapper, holder);
+		impl.setup = true;
+		return true;
+	}
+
+	private void checkTracker(BEEWrapper wrapper, ContainerHolder holder){
 		if(wrapper.getTracker() == null){
 			wrapper.setTracker(new Tracker(wrapper));
 			wrapper.getEntity().world.spawnEntity(wrapper.getTracker());
 		}
+		holder.setWrapper(wrapper);
 		holder.sync(false);
-		impl.setup = true;
-		return true;
 	}
 
 	public static BEEWrapper getWrapper(BuilderEntityExisting entity){
