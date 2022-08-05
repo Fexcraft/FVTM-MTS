@@ -48,7 +48,7 @@ public class RenderTracker extends Render<Tracker> implements IRenderFactory<Tra
         if(Command.CONTAINER){
     		for(ContainerSlot slot : cap.getContainerSlots()){
     			Point3D point = new Point3D(slot.position.x, slot.position.y, slot.position.z);
-    			point.rotate(tracker.wrapper.ent.rotation);
+    			point.rotate(tracker.wrapper.ent.orientation);
     			point.add(tracker.wrapper.ent.position);//.add(.375, 0, .375);
     			GL11.glPushMatrix();
     			GL11.glTranslated(point.x, point.y, point.z);
@@ -59,10 +59,13 @@ public class RenderTracker extends Render<Tracker> implements IRenderFactory<Tra
     		}
         }
 		Point3D pos = tracker.wrapper.ent.prevPosition.interpolate(tracker.wrapper.ent.position, ticks);
-		Point3D rot = tracker.wrapper.ent.prevOrientation.angles.interpolate(tracker.wrapper.ent.orientation.angles, ticks);
+		Point3D rot = tracker.wrapper.ent.prevOrientation.angles;//.interpolate(tracker.wrapper.ent.orientation.angles, ticks);
 		//cap.render(pos.x, pos.y, pos.z, rot.y, rot.x, -rot.z);
 		GL11.glTranslated(pos.x, pos.y, pos.z);
-		EffectRenderer.renderContainerInfo(tracker.world, tracker.wrapper, cap, new Vec3f(rot.y, rot.x, -rot.z));
+		GL11.glRotated(rot.y, 0, 1, 0);
+		GL11.glRotated(rot.z, 0, 0, 1);
+		GL11.glRotated(rot.x, 1, 0, 0);
+		EffectRenderer.renderContainerInfo(tracker.world, tracker.wrapper, cap, new Vec3f(0, 0, 0));
 		GL11.glPopMatrix();
     }
     
