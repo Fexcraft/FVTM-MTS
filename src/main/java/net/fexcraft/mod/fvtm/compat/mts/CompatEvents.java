@@ -1,15 +1,13 @@
 package net.fexcraft.mod.fvtm.compat.mts;
 
-import java.lang.reflect.Field;
 import java.util.ArrayList;
-import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
+import com.mojang.realmsclient.util.Pair;
+
 import mcinterface1122.BuilderEntityExisting;
 import mcinterface1122.InterfaceInterface;
-import mcinterface1122.WrapperEntity;
-import minecrafttransportsimulator.entities.components.AEntityB_Existing;
 import minecrafttransportsimulator.entities.components.AEntityF_Multipart;
 import minecrafttransportsimulator.entities.instances.APart;
 import minecrafttransportsimulator.entities.instances.EntityVehicleF_Physics;
@@ -31,10 +29,10 @@ import net.minecraftforge.fml.common.gameevent.TickEvent.WorldTickEvent;
 public class CompatEvents {
 
 	//we'll track them till we're sure
-	public static ConcurrentLinkedQueue<BuilderEntityExisting> tracked = new ConcurrentLinkedQueue<>();
+	public static ConcurrentLinkedQueue<Pair<BuilderEntityExisting, AEntityF_Multipart<?>>> tracked = new ConcurrentLinkedQueue<>();
 	public static ConcurrentLinkedQueue<AEntityF_Multipart<?>> cotracked = new ConcurrentLinkedQueue<>();
 	public static ConcurrentHashMap<BuilderEntityExisting, BEEWrapper> bee_wrappers = new ConcurrentHashMap<>();
-	private static final ArrayList<BuilderEntityExisting> torem = new ArrayList<>();
+	private static final ArrayList<Pair<BuilderEntityExisting, AEntityF_Multipart<?>>> torem = new ArrayList<>();
 	private static final ArrayList<AEntityF_Multipart<?>> cotorem = new ArrayList<>();
 	
 	public CompatEvents(){}
@@ -55,33 +53,30 @@ public class CompatEvents {
 	public void worldTick(WorldTickEvent event){
 		if(event.phase == Phase.START || event.world.isRemote) return;
 		if(tracked.size() > 0){
-			Print.debug(tracked);
-			Print.debug(cotracked);
-			for(BuilderEntityExisting entity : tracked){
-				if(entity.isDead){
-					torem.add(entity);
+			//Print.debug(tracked);
+			//Print.debug(cotracked);
+			for(Pair<BuilderEntityExisting, AEntityF_Multipart<?>> pair : tracked){
+				if(pair.first().isDead){
+					torem.add(pair);
 					continue;
 				}
-				AEntityB_Existing ent = InterfaceInterface.toInternal(entity);
-				if(ent != null){
-					if(ent instanceof EntityVehicleF_Physics == false){
-						torem.add(entity);
-						continue;
-					}
-					EntityVehicleF_Physics entf = (EntityVehicleF_Physics)ent;
-					BEEWrapper wrapper = getWrapper(entity);
-					int found = 0;
-					for(APart part : entf.parts){
-						if(part instanceof ContainerPart){
-							if(includeContainer(wrapper, (ContainerPart)part, found)) found++;
-						}
-					}
-					torem.add(entity);
+				if(pair.second() instanceof EntityVehicleF_Physics == false){
+					torem.add(pair);
+					continue;
 				}
+				EntityVehicleF_Physics entf = (EntityVehicleF_Physics)pair.second();
+				BEEWrapper wrapper = getWrapper(pair.first());
+				int found = 0;
+				for(APart part : entf.parts){
+					if(part instanceof ContainerPart){
+						if(includeContainer(wrapper, (ContainerPart)part, found)) found++;
+					}
+				}
+				torem.add(pair);
 			}
-			Print.debug(torem);
-			Print.debug(bee_wrappers);
-			Print.debug("=====");
+			//Print.debug(torem);
+			//Print.debug(bee_wrappers);
+			//Print.debug("=====");
 			tracked.removeAll(torem);
 			torem.clear();
 		}
@@ -89,7 +84,7 @@ public class CompatEvents {
 			for(AEntityF_Multipart<?> entity : cotracked){
 				BuilderEntityExisting ent = InterfaceInterface.toExternal(entity);
 				if(ent != null){
-					tracked.add(ent);
+					tracked.add(Pair.of(ent, entity));
 					cotorem.add(entity);
 				}
 			}
@@ -134,29 +129,12 @@ public class CompatEvents {
 		}
 		return bee_wrappers.get(entity);
 	}
-	
-	private static Field entfield;
-	private static boolean entfailed = false;
-	
-	public static Map<Entity, WrapperEntity> getWrapperEntities(){
-		if(entfield == null && !entfailed){
-			try{
-				entfield = WrapperEntity.class.getDeclaredField("entityWrappers");
-				entfield.setAccessible(true);
-			}
-			catch(Exception e){
-				Print.log("Failed to get field. [ENTFIELD:ERR:0]");
-				e.printStackTrace();
-				entfailed = true;
-			}
+
+	/*public static BEEWrapper getWrapper(AEntityF_Multipart<?> entity){
+		for(BEEWrapper wrapper : bee_wrappers.values()){
+			if(wrapper.ent == entity) return wrapper;
 		}
-		try{
-			return (Map<Entity, WrapperEntity>)entfield.get(null);
-		}
-		catch(IllegalArgumentException | IllegalAccessException e){
-			e.printStackTrace();
-			return null;
-		}
-	}
+		return getWrapper(InterfaceInterface.toExternal(entity));
+	}*/
 
 }
