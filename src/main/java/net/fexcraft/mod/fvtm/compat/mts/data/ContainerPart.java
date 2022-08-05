@@ -25,11 +25,11 @@ public abstract class ContainerPart extends APart {
 	}
 	
     @Override
-    protected void renderModel(TransformationMatrix transform, boolean blendingEnabled, float partialTicks) {
+    protected void renderModel(TransformationMatrix transform, boolean blending, float ticks){
     	//
     }
-	
-    @Override
+
+	@Override
     public boolean disableRendering(float partialTicks) {
         return true;
     }
