@@ -22,7 +22,7 @@ public class Tracker extends Entity implements IEntityAdditionalSpawnData {
 	
 	public Tracker(World world){
 		super(world);
-		this.setSize(3, 3);;
+		setSize(0.5f, 0.5f);
 	}
 
 	public Tracker(BEEWrapper wrapper){
