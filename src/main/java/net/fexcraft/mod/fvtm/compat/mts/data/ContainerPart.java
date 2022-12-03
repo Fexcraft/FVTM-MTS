@@ -19,8 +19,8 @@ import net.minecraft.entity.player.EntityPlayer;
 
 public abstract class ContainerPart extends APart {
 
-	public ContainerPart(AEntityF_Multipart<?> entityOn, IWrapperPlayer placingPlayer, JSONPartDefinition placementDefinition, IWrapperNBT data, APart parentPart){
-		super(entityOn, placingPlayer, placementDefinition, data, parentPart);
+	public ContainerPart(AEntityF_Multipart<?> entityOn, IWrapperPlayer placingPlayer, JSONPartDefinition placementDefinition, IWrapperNBT data){
+		super(entityOn, placingPlayer, placementDefinition, data);
 		CompatEvents.cotracked.add(entityOn);
 	}
 	
@@ -85,8 +85,8 @@ public abstract class ContainerPart extends APart {
 	
 	public static class Single extends ContainerPart {
 
-		public Single(AEntityF_Multipart<?> entityOn, IWrapperPlayer placing, JSONPartDefinition placementDefinition, IWrapperNBT data, APart parentPart){
-			super(entityOn, placing, placementDefinition, data, parentPart);
+		public Single(AEntityF_Multipart<?> entityOn, IWrapperPlayer placing, JSONPartDefinition placementDefinition, IWrapperNBT data){
+			super(entityOn, placing, placementDefinition, data);
 		}
 
 		@Override
@@ -98,8 +98,8 @@ public abstract class ContainerPart extends APart {
 	
 	public static class Double extends ContainerPart {
 
-		public Double(AEntityF_Multipart<?> entityOn, IWrapperPlayer player, JSONPartDefinition placementDefinition, IWrapperNBT data, APart parentPart){
-			super(entityOn, player, placementDefinition, data, parentPart);
+		public Double(AEntityF_Multipart<?> entityOn, IWrapperPlayer player, JSONPartDefinition placementDefinition, IWrapperNBT data){
+			super(entityOn, player, placementDefinition, data);
 		}
 
 		@Override
