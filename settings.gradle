@@ -2,5 +2,7 @@ include ':FCL'
 project(':FCL').projectDir = new File(settingsDir, '../FCL')
 include ':FVTM'
 project(':FVTM').projectDir = new File(settingsDir, '../FVTM')
-include ':MinecraftTransportSimulator'
-project(':MinecraftTransportSimulator').projectDir = new File(settingsDir, '../MinecraftTransportSimulator')
+include ':mccore'
+project(':mccore').projectDir = new File(settingsDir, '../MinecraftTransportSimulator/mccore')
+include ':mts_1122'
+project(':mts_1122').projectDir = new File(settingsDir, '../MinecraftTransportSimulator/mcinterfaceforge1122')
