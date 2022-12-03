@@ -6,6 +6,7 @@ import minecrafttransportsimulator.entities.components.AEntityF_Multipart;
 import minecrafttransportsimulator.entities.instances.APart;
 import minecrafttransportsimulator.items.components.AItemPart;
 import minecrafttransportsimulator.jsondefs.JSONPartDefinition;
+import minecrafttransportsimulator.jsondefs.JSONSubDefinition;
 import minecrafttransportsimulator.mcinterface.IWrapperNBT;
 import minecrafttransportsimulator.mcinterface.IWrapperPlayer;
 import net.fexcraft.mod.fvtm.compat.mts.MTSCompat;
@@ -16,13 +17,19 @@ public class ContainerPartItem extends AItemPart {
 	private boolean single;
 	
 	public ContainerPartItem(ContainerJsonPart conpart, boolean single){
-		super(conpart, "", MTSCompat.MODID);
+		super(conpart, gsd(), MTSCompat.MODID);
 		this.single = single;
 	}
 
+	private static JSONSubDefinition gsd(){
+		JSONSubDefinition def = new JSONSubDefinition();
+		def.subName = "";
+		return def;
+	}
+
 	@Override
-	public APart createPart(AEntityF_Multipart<?> entity, IWrapperPlayer placingPlayer, JSONPartDefinition packVehicleDef, IWrapperNBT partData, APart parentPart) {
-		return single ? new ContainerPart.Single(entity, placingPlayer, packVehicleDef, partData, parentPart) : new ContainerPart.Double(entity, placingPlayer, packVehicleDef, partData, parentPart);
+	public APart createPart(AEntityF_Multipart<?> entity, IWrapperPlayer placingPlayer, JSONPartDefinition packVehicleDef, IWrapperNBT partData) {
+		return single ? new ContainerPart.Single(entity, placingPlayer, packVehicleDef, partData) : new ContainerPart.Double(entity, placingPlayer, packVehicleDef, partData);
 	}
 	
 	@Override
