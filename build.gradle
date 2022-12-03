@@ -82,7 +82,8 @@ dependencies {
 
 	compile project(':FCL')
 	compile project(':FVTM')
-	compile project(':MinecraftTransportSimulator')
+	compile project(':mccore')
+	compile project(':mts_1122')
 
 }
 
